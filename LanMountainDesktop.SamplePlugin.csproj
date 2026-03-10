@@ -9,13 +9,15 @@
     <OutputPath>bin\$(Configuration)\$(TargetFramework)\content\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <PluginPackageOutputDirectory>..\..\..\LanMountainDesktop\bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\</PluginPackageOutputDirectory>
-    <PluginPackagePath>$(PluginPackageOutputDirectory)$(AssemblyName).laapp</PluginPackagePath>
-    <LegacyLoosePluginOutputDirectory>..\..\..\LanMountainDesktop\bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\SamplePlugin\</LegacyLoosePluginOutputDirectory>
+    <WorkspaceRoot>$(MSBuildThisFileDirectory)..\</WorkspaceRoot>
+    <PluginSdkProjectPath>$(WorkspaceRoot)LanAirApp\LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
+    <PluginPackageOutputDirectory>$(WorkspaceRoot)LanAirApp\LanAirApp\releases\</PluginPackageOutputDirectory>
+    <PluginPackagePath>$(PluginPackageOutputDirectory)$(AssemblyName).$(Version).laapp</PluginPackagePath>
+    <LegacyLoosePluginOutputDirectory>$(WorkspaceRoot)LanMontainDesktop\bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\SamplePlugin\</LegacyLoosePluginOutputDirectory>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj" Private="false" />
+    <ProjectReference Include="$(PluginSdkProjectPath)" Private="false" />
     <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Localization\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

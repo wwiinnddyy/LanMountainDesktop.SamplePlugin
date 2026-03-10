@@ -349,8 +349,8 @@
     },
     "LanMountainDesktop.PluginSdk/1.0.0": {
       "type": "project",
-      "path": "../../../LanMountainDesktop.PluginSdk/LanMountainDesktop.PluginSdk.csproj",
-      "msbuildProject": "../../../LanMountainDesktop.PluginSdk/LanMountainDesktop.PluginSdk.csproj"
+      "path": "../LanAirApp/LanMountainDesktop.PluginSdk/LanMountainDesktop.PluginSdk.csproj",
+      "msbuildProject": "../LanAirApp/LanMountainDesktop.PluginSdk/LanMountainDesktop.PluginSdk.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -364,11 +364,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\USER182287\\Documents\\GitHub\\LanAirApp\\LanAirApp\\samples\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
+      "projectUniqueName": "C:\\Users\\USER182287\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
       "projectName": "LanMountainDesktop.SamplePlugin",
-      "projectPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanAirApp\\LanAirApp\\samples\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
+      "projectPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
       "packagesPath": "C:\\Users\\USER182287\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanAirApp\\LanAirApp\\samples\\LanMountainDesktop.SamplePlugin\\obj\\",
+      "outputPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\USER182287\\AppData\\Roaming\\NuGet\\NuGet.Config"
