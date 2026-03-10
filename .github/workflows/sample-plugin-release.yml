@@ -1,10 +1,7 @@
-name: Sample Plugin CI-CD
+name: Sample Plugin Release
 
 on:
-  pull_request:
   push:
-    branches:
-      - main
     tags:
       - "v*"
   workflow_dispatch:
@@ -29,10 +26,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
+  release:
     runs-on: windows-latest
     outputs:
-      is_release: ${{ steps.plan.outputs.is_release }}
       version: ${{ steps.metadata.outputs.version }}
       release_tag: ${{ steps.metadata.outputs.release_tag }}
       asset_name: ${{ steps.metadata.outputs.asset_name }}
@@ -57,36 +53,28 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Resolve release plan
-        id: plan
+      - name: Resolve release version
+        id: release_plan
         shell: pwsh
         run: |
-          $isRelease = $false
-          $version = ""
-          $releaseTag = ""
-
-          if ("${{ github.ref }}" -like "refs/tags/v*") {
-            $isRelease = $true
-            $releaseTag = "${{ github.ref_name }}"
-            $version = $releaseTag.Substring(1)
-          }
-          elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
-            $isRelease = $true
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
             $version = "${{ github.event.inputs.version }}".Trim()
             if ($version.StartsWith("v", [System.StringComparison]::OrdinalIgnoreCase)) {
               $version = $version.Substring(1)
             }
             $releaseTag = "v$version"
           }
+          else {
+            $releaseTag = "${{ github.ref_name }}"
+            $version = $releaseTag.Substring(1)
+          }
 
-          "is_release=$($isRelease.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
           "version=$version" >> $env:GITHUB_OUTPUT
           "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
 
       - name: Apply release version
-        if: steps.plan.outputs.is_release == 'true'
         shell: pwsh
-        run: .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ steps.plan.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
+        run: .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ steps.release_plan.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
 
       - name: Validate plugin metadata
         shell: pwsh
@@ -124,10 +112,10 @@ jobs:
             -Version "${{ steps.metadata.outputs.version }}" `
             -OutputPath .\LanMountainDesktop.SamplePlugin\artifacts\airappmarket-sync.json
 
-      - name: Upload build artifacts
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sample-plugin-package
+          name: sample-plugin-release
           path: |
             LanMountainDesktop.SamplePlugin/${{ steps.metadata.outputs.asset_name }}
             LanMountainDesktop.SamplePlugin/artifacts/sha256.txt
@@ -136,7 +124,6 @@ jobs:
           retention-days: 30
 
       - name: Create or update GitHub Release
-        if: steps.plan.outputs.is_release == 'true'
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -161,8 +148,7 @@ jobs:
           }
 
   sync-root-fallback-pr:
-    needs: build
-    if: needs.build.outputs.is_release == 'true'
+    needs: release
     runs-on: windows-latest
 
     steps:
@@ -176,13 +162,13 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
-          name: sample-plugin-package
+          name: sample-plugin-release
           path: downloaded
 
       - name: Sync repository root fallback package
         shell: pwsh
         run: |
-          .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ needs.build.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
+          .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ needs.release.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
           Get-ChildItem .\LanMountainDesktop.SamplePlugin -Filter "*.laapp" -File | Remove-Item -Force
           $package = Get-ChildItem .\downloaded -Recurse -Filter "*.laapp" | Select-Object -First 1
           if (-not $package) {
@@ -195,12 +181,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: LanMountainDesktop.SamplePlugin
-          branch: automation/root-fallback-${{ needs.build.outputs.release_tag }}
+          branch: automation/root-fallback-${{ needs.release.outputs.release_tag }}
           delete-branch: true
-          commit-message: "chore: sync root fallback package ${{ needs.build.outputs.release_tag }}"
-          title: "chore: sync root fallback package ${{ needs.build.outputs.release_tag }}"
+          commit-message: "chore: sync root fallback package ${{ needs.release.outputs.release_tag }}"
+          title: "chore: sync root fallback package ${{ needs.release.outputs.release_tag }}"
           body: |
-            Sync the repository-root fallback package and version files after releasing `${{ needs.build.outputs.release_tag }}`.
+            Sync the repository-root fallback package and version files after releasing `${{ needs.release.outputs.release_tag }}`.
           add-paths: |
             *.laapp
             LanMountainDesktop.SamplePlugin.csproj
@@ -208,8 +194,7 @@ jobs:
             README.md
 
   sync-airappmarket-pr:
-    needs: build
-    if: needs.build.outputs.is_release == 'true'
+    needs: release
     runs-on: windows-latest
 
     steps:
@@ -231,7 +216,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
-          name: sample-plugin-package
+          name: sample-plugin-release
           path: downloaded
 
       - name: Setup .NET
@@ -259,11 +244,11 @@ jobs:
         with:
           token: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
           path: LanAirApp
-          branch: automation/airappmarket-${{ needs.build.outputs.release_tag }}
+          branch: automation/airappmarket-${{ needs.release.outputs.release_tag }}
           delete-branch: true
-          commit-message: "chore: sync market entry ${{ needs.build.outputs.release_tag }}"
-          title: "chore: sync market entry ${{ needs.build.outputs.release_tag }}"
+          commit-message: "chore: sync market entry ${{ needs.release.outputs.release_tag }}"
+          title: "chore: sync market entry ${{ needs.release.outputs.release_tag }}"
           body: |
-            Sync the official AirApp Market index for `${{ needs.build.outputs.release_tag }}`.
+            Sync the official AirApp Market index for `${{ needs.release.outputs.release_tag }}`.
           add-paths: |
             airappmarket/index.json

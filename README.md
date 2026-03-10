@@ -20,12 +20,12 @@
 - 如果 Release 未发布、资产缺失或 GitHub API 无法解析，宿主会退回到仓库根目录 `.laapp`
 - 插件介绍始终读取仓库根目录 `README.md`
 
-### CI/CD
+### GitHub Actions
 
-- `pull_request` 和推送到 `main` 时执行 CI：还原、构建、打包、校验版本与产物命名
-- 推送 `v*` 标签或手动触发工作流时执行发布：创建或更新 GitHub Release，并生成 `airappmarket-sync.json`
-- 发布后会自动为本仓库创建 PR，同步根目录 `.laapp` 和版本文件
-- 发布后也会自动为 `LanAirApp` 创建 PR，同步官方市场索引
+- `Sample Plugin CI` 只负责检查：在 `pull_request` 和推送到 `main` 时执行版本校验、构建、打包和市场元数据生成
+- `Sample Plugin Release` 只负责发布：在推送 `v*` 标签或手动触发时创建或更新 GitHub Release
+- 发布完成后，`Sample Plugin Release` 会自动为本仓库创建 PR，同步根目录 `.laapp` 和版本文件
+- 发布完成后，`Sample Plugin Release` 也会自动为 `LanAirApp` 创建 PR，同步官方市场索引
 
 ## English
 
@@ -46,3 +46,10 @@ This repository is the standalone sample plugin for LanMountainDesktop and the r
 - the desktop market resolves the exact GitHub Release asset first
 - if Release resolution fails, the host falls back to the repository root `.laapp`
 - plugin details always come from the repository root `README.md`
+
+### GitHub Actions
+
+- `Sample Plugin CI` handles validation only on pull requests and pushes to `main`
+- `Sample Plugin Release` handles publishing only on `v*` tags or manual dispatch
+- after a release, the release workflow opens a PR in this repository to sync the root fallback package and version files
+- after a release, the release workflow also opens a PR in `LanAirApp` to sync the official market index
