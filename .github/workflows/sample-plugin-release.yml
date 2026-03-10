@@ -7,23 +7,26 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version, for example 1.2.3"
+        description: "Committed release version, for example 1.2.3"
         required: true
         type: string
       target_ref:
-        description: "Git ref to release from"
+        description: "Git ref to release from. The committed plugin version must already match the release version."
         required: false
         default: "main"
         type: string
 
 env:
   DOTNET_VERSION: "10.0.x"
-  PLUGIN_REPOSITORY: "wwiinnddyy/LanMountainDesktop.SamplePlugin"
   MARKET_REPOSITORY: "wwiinnddyy/LanAirApp"
 
 permissions:
   contents: write
   pull-requests: write
+
+concurrency:
+  group: sample-plugin-release-${{ github.ref_name || github.event.inputs.version || github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -32,6 +35,7 @@ jobs:
       version: ${{ steps.metadata.outputs.version }}
       release_tag: ${{ steps.metadata.outputs.release_tag }}
       asset_name: ${{ steps.metadata.outputs.asset_name }}
+      target_commitish: ${{ steps.metadata.outputs.target_commitish }}
 
     steps:
       - name: Checkout sample plugin
@@ -53,7 +57,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Resolve release version
+      - name: Resolve requested release version
         id: release_plan
         shell: pwsh
         run: |
@@ -72,10 +76,6 @@ jobs:
           "version=$version" >> $env:GITHUB_OUTPUT
           "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
 
-      - name: Apply release version
-        shell: pwsh
-        run: .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ steps.release_plan.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
-
       - name: Validate plugin metadata
         shell: pwsh
         run: .\LanMountainDesktop.SamplePlugin\scripts\Test-PluginConsistency.ps1 -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
@@ -86,10 +86,17 @@ jobs:
         run: |
           $manifest = Get-Content .\LanMountainDesktop.SamplePlugin\plugin.json -Raw | ConvertFrom-Json
           $version = $manifest.version.Trim()
+          $requestedVersion = "${{ steps.release_plan.outputs.version }}".Trim()
+          if ($version -ne $requestedVersion) {
+            throw "Release version mismatch. Requested version is '$requestedVersion', but the committed plugin version is '$version'. Commit the version bump before publishing the Release."
+          }
+
           $assetName = "$($manifest.id).$version.laapp"
+          $targetCommitish = (git -C .\LanMountainDesktop.SamplePlugin rev-parse HEAD).Trim()
           "version=$version" >> $env:GITHUB_OUTPUT
-          "release_tag=v$version" >> $env:GITHUB_OUTPUT
+          "release_tag=${{ steps.release_plan.outputs.release_tag }}" >> $env:GITHUB_OUTPUT
           "asset_name=$assetName" >> $env:GITHUB_OUTPUT
+          "target_commitish=$targetCommitish" >> $env:GITHUB_OUTPUT
 
       - name: Build plugin package
         shell: pwsh
@@ -104,8 +111,17 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path .\LanMountainDesktop.SamplePlugin\artifacts | Out-Null
           $packagePath = Resolve-Path ".\LanMountainDesktop.SamplePlugin\${{ steps.metadata.outputs.asset_name }}"
-          $hash = (Get-FileHash -Path $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
-          Set-Content -Path .\LanMountainDesktop.SamplePlugin\artifacts\sha256.txt -Value $hash -Encoding utf8NoBOM
+          $sha256 = (Get-FileHash -Path $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $md5 = (Get-FileHash -Path $packagePath -Algorithm MD5).Hash.ToLowerInvariant()
+          Set-Content -Path .\LanMountainDesktop.SamplePlugin\artifacts\sha256.txt -Value $sha256 -Encoding utf8NoBOM
+          Set-Content -Path .\LanMountainDesktop.SamplePlugin\artifacts\md5.txt -Value $md5 -Encoding utf8NoBOM
+          .\LanMountainDesktop.SamplePlugin\scripts\New-ReleaseNotes.ps1 `
+            -PackageName "${{ steps.metadata.outputs.asset_name }}" `
+            -Version "${{ steps.metadata.outputs.version }}" `
+            -ReleaseTag "${{ steps.metadata.outputs.release_tag }}" `
+            -Md5 $md5 `
+            -Sha256 $sha256 `
+            -OutputPath .\LanMountainDesktop.SamplePlugin\artifacts\release-notes.md
           .\LanMountainDesktop.SamplePlugin\scripts\New-AirAppMarketSync.ps1 `
             -TemplatePath .\LanMountainDesktop.SamplePlugin\airappmarket-entry.template.json `
             -PackagePath $packagePath `
@@ -119,33 +135,31 @@ jobs:
           path: |
             LanMountainDesktop.SamplePlugin/${{ steps.metadata.outputs.asset_name }}
             LanMountainDesktop.SamplePlugin/artifacts/sha256.txt
+            LanMountainDesktop.SamplePlugin/artifacts/md5.txt
+            LanMountainDesktop.SamplePlugin/artifacts/release-notes.md
             LanMountainDesktop.SamplePlugin/artifacts/airappmarket-sync.json
           if-no-files-found: error
           retention-days: 30
 
       - name: Create or update GitHub Release
-        shell: pwsh
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.metadata.outputs.release_tag }}
+          target_commitish: ${{ steps.metadata.outputs.target_commitish }}
+          name: ${{ steps.metadata.outputs.release_tag }}
+          body_path: LanMountainDesktop.SamplePlugin/artifacts/release-notes.md
+          files: |
+            LanMountainDesktop.SamplePlugin/${{ steps.metadata.outputs.asset_name }}
+            LanMountainDesktop.SamplePlugin/artifacts/sha256.txt
+            LanMountainDesktop.SamplePlugin/artifacts/md5.txt
+            LanMountainDesktop.SamplePlugin/artifacts/airappmarket-sync.json
+          fail_on_unmatched_files: true
+          overwrite_files: true
+          draft: false
+          prerelease: false
+          make_latest: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $tag = "${{ steps.metadata.outputs.release_tag }}"
-          $packagePath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin\${{ steps.metadata.outputs.asset_name }}").Path
-          $shaPath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin\artifacts\sha256.txt").Path
-          $syncPath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin\artifacts\airappmarket-sync.json").Path
-          $repo = "${{ env.PLUGIN_REPOSITORY }}"
-
-          gh release view $tag --repo $repo *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release upload $tag $packagePath $shaPath $syncPath --repo $repo --clobber
-          }
-          else {
-            $targetSha = (git -C .\LanMountainDesktop.SamplePlugin rev-parse HEAD).Trim()
-            gh release create $tag $packagePath $shaPath $syncPath `
-              --repo $repo `
-              --target $targetSha `
-              --title $tag `
-              --notes "Plugin release $tag. README remains the canonical plugin introduction, while the repository root .laapp package stays available as the market fallback."
-          }
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   sync-root-fallback-pr:
     needs: release

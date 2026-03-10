@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LanMountainDesktop.SamplePlugin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+320982a30d2ebe8792931a51898d2c755693b22d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0aad58e70be931f15fb87add36227ab0e6438955")]
 [assembly: System.Reflection.AssemblyProductAttribute("LanMountainDesktop.SamplePlugin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LanMountainDesktop.SamplePlugin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
