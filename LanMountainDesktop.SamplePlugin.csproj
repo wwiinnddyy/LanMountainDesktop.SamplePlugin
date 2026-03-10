@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -11,7 +11,7 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <WorkspaceRoot>$(MSBuildThisFileDirectory)..\</WorkspaceRoot>
     <PluginSdkProjectPath>$(WorkspaceRoot)LanAirApp\LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
-    <PluginPackageOutputDirectory>$(WorkspaceRoot)LanAirApp\LanAirApp\releases\</PluginPackageOutputDirectory>
+    <PluginPackageOutputDirectory>$(MSBuildThisFileDirectory)</PluginPackageOutputDirectory>
     <PluginPackagePath>$(PluginPackageOutputDirectory)$(AssemblyName).$(Version).laapp</PluginPackagePath>
     <LegacyLoosePluginOutputDirectory>$(WorkspaceRoot)LanMontainDesktop\bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\SamplePlugin\</LegacyLoosePluginOutputDirectory>
   </PropertyGroup>

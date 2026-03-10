@@ -1,0 +1,27 @@
+{
+  "id": "LanMountainDesktop.SamplePlugin",
+  "name": "LanMountain Sample Plugin",
+  "description": "Example plugin used to validate PluginSdk loading and isolation.",
+  "author": "LanMountainDesktop",
+  "version": "",
+  "apiVersion": "1.0.0",
+  "minHostVersion": "1.0.0",
+  "downloadUrl": "",
+  "sha256": "",
+  "packageSizeBytes": 0,
+  "iconUrl": "https://raw.githubusercontent.com/wwiinnddyy/LanAirApp/main/airappmarket/assets/sample-plugin.svg",
+  "releaseTag": "",
+  "releaseAssetName": "",
+  "projectUrl": "https://github.com/wwiinnddyy/LanMountainDesktop.SamplePlugin",
+  "readmeUrl": "https://raw.githubusercontent.com/wwiinnddyy/LanMountainDesktop.SamplePlugin/main/README.md",
+  "homepageUrl": "https://github.com/wwiinnddyy/LanMountainDesktop.SamplePlugin",
+  "repositoryUrl": "https://github.com/wwiinnddyy/LanMountainDesktop.SamplePlugin",
+  "tags": [
+    "example",
+    "official",
+    "sdk"
+  ],
+  "publishedAt": "",
+  "updatedAt": "",
+  "releaseNotes": "Reference plugin for SDK validation. The desktop app prefers the tagged GitHub Release asset and falls back to the repository root .laapp package when a Release asset cannot be resolved."
+}

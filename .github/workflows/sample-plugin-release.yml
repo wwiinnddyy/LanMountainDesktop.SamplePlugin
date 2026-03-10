@@ -1,0 +1,269 @@
+name: Sample Plugin CI-CD
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, for example 1.2.3"
+        required: true
+        type: string
+      target_ref:
+        description: "Git ref to release from"
+        required: false
+        default: "main"
+        type: string
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  PLUGIN_REPOSITORY: "wwiinnddyy/LanMountainDesktop.SamplePlugin"
+  MARKET_REPOSITORY: "wwiinnddyy/LanAirApp"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    outputs:
+      is_release: ${{ steps.plan.outputs.is_release }}
+      version: ${{ steps.metadata.outputs.version }}
+      release_tag: ${{ steps.metadata.outputs.release_tag }}
+      asset_name: ${{ steps.metadata.outputs.asset_name }}
+
+    steps:
+      - name: Checkout sample plugin
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: LanMountainDesktop.SamplePlugin
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_ref || github.ref }}
+
+      - name: Checkout LanAirApp
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.MARKET_REPOSITORY }}
+          fetch-depth: 0
+          path: LanAirApp
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve release plan
+        id: plan
+        shell: pwsh
+        run: |
+          $isRelease = $false
+          $version = ""
+          $releaseTag = ""
+
+          if ("${{ github.ref }}" -like "refs/tags/v*") {
+            $isRelease = $true
+            $releaseTag = "${{ github.ref_name }}"
+            $version = $releaseTag.Substring(1)
+          }
+          elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $isRelease = $true
+            $version = "${{ github.event.inputs.version }}".Trim()
+            if ($version.StartsWith("v", [System.StringComparison]::OrdinalIgnoreCase)) {
+              $version = $version.Substring(1)
+            }
+            $releaseTag = "v$version"
+          }
+
+          "is_release=$($isRelease.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
+
+      - name: Apply release version
+        if: steps.plan.outputs.is_release == 'true'
+        shell: pwsh
+        run: .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ steps.plan.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
+
+      - name: Validate plugin metadata
+        shell: pwsh
+        run: .\LanMountainDesktop.SamplePlugin\scripts\Test-PluginConsistency.ps1 -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
+
+      - name: Resolve build metadata
+        id: metadata
+        shell: pwsh
+        run: |
+          $manifest = Get-Content .\LanMountainDesktop.SamplePlugin\plugin.json -Raw | ConvertFrom-Json
+          $version = $manifest.version.Trim()
+          $assetName = "$($manifest.id).$version.laapp"
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "release_tag=v$version" >> $env:GITHUB_OUTPUT
+          "asset_name=$assetName" >> $env:GITHUB_OUTPUT
+
+      - name: Build plugin package
+        shell: pwsh
+        run: dotnet build .\LanMountainDesktop.SamplePlugin\LanMountainDesktop.SamplePlugin.csproj -c Release -v minimal
+
+      - name: Validate built package
+        shell: pwsh
+        run: .\LanMountainDesktop.SamplePlugin\scripts\Test-PluginConsistency.ps1 -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path -PackagePath ".\LanMountainDesktop.SamplePlugin\${{ steps.metadata.outputs.asset_name }}"
+
+      - name: Generate release metadata
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path .\LanMountainDesktop.SamplePlugin\artifacts | Out-Null
+          $packagePath = Resolve-Path ".\LanMountainDesktop.SamplePlugin\${{ steps.metadata.outputs.asset_name }}"
+          $hash = (Get-FileHash -Path $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path .\LanMountainDesktop.SamplePlugin\artifacts\sha256.txt -Value $hash -Encoding utf8NoBOM
+          .\LanMountainDesktop.SamplePlugin\scripts\New-AirAppMarketSync.ps1 `
+            -TemplatePath .\LanMountainDesktop.SamplePlugin\airappmarket-entry.template.json `
+            -PackagePath $packagePath `
+            -Version "${{ steps.metadata.outputs.version }}" `
+            -OutputPath .\LanMountainDesktop.SamplePlugin\artifacts\airappmarket-sync.json
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-plugin-package
+          path: |
+            LanMountainDesktop.SamplePlugin/${{ steps.metadata.outputs.asset_name }}
+            LanMountainDesktop.SamplePlugin/artifacts/sha256.txt
+            LanMountainDesktop.SamplePlugin/artifacts/airappmarket-sync.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Create or update GitHub Release
+        if: steps.plan.outputs.is_release == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "${{ steps.metadata.outputs.release_tag }}"
+          $packagePath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin\${{ steps.metadata.outputs.asset_name }}").Path
+          $shaPath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin\artifacts\sha256.txt").Path
+          $syncPath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin\artifacts\airappmarket-sync.json").Path
+          $repo = "${{ env.PLUGIN_REPOSITORY }}"
+
+          gh release view $tag --repo $repo *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $packagePath $shaPath $syncPath --repo $repo --clobber
+          }
+          else {
+            $targetSha = (git -C .\LanMountainDesktop.SamplePlugin rev-parse HEAD).Trim()
+            gh release create $tag $packagePath $shaPath $syncPath `
+              --repo $repo `
+              --target $targetSha `
+              --title $tag `
+              --notes "Plugin release $tag. README remains the canonical plugin introduction, while the repository root .laapp package stays available as the market fallback."
+          }
+
+  sync-root-fallback-pr:
+    needs: build
+    if: needs.build.outputs.is_release == 'true'
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout sample plugin
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: LanMountainDesktop.SamplePlugin
+          ref: main
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sample-plugin-package
+          path: downloaded
+
+      - name: Sync repository root fallback package
+        shell: pwsh
+        run: |
+          .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ needs.build.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
+          Get-ChildItem .\LanMountainDesktop.SamplePlugin -Filter "*.laapp" -File | Remove-Item -Force
+          $package = Get-ChildItem .\downloaded -Recurse -Filter "*.laapp" | Select-Object -First 1
+          if (-not $package) {
+            throw "Release package artifact not found."
+          }
+          Copy-Item $package.FullName (Join-Path (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path $package.Name) -Force
+
+      - name: Create root fallback PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: LanMountainDesktop.SamplePlugin
+          branch: automation/root-fallback-${{ needs.build.outputs.release_tag }}
+          delete-branch: true
+          commit-message: "chore: sync root fallback package ${{ needs.build.outputs.release_tag }}"
+          title: "chore: sync root fallback package ${{ needs.build.outputs.release_tag }}"
+          body: |
+            Sync the repository-root fallback package and version files after releasing `${{ needs.build.outputs.release_tag }}`.
+          add-paths: |
+            *.laapp
+            LanMountainDesktop.SamplePlugin.csproj
+            plugin.json
+            README.md
+
+  sync-airappmarket-pr:
+    needs: build
+    if: needs.build.outputs.is_release == 'true'
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout sample plugin
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: LanMountainDesktop.SamplePlugin
+
+      - name: Checkout LanAirApp
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.MARKET_REPOSITORY }}
+          fetch-depth: 0
+          path: LanAirApp
+          token: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
+          ref: main
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sample-plugin-package
+          path: downloaded
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Update AirApp Market index
+        shell: pwsh
+        run: |
+          $syncFile = Get-ChildItem .\downloaded -Recurse -Filter "airappmarket-sync.json" | Select-Object -First 1
+          if (-not $syncFile) {
+            throw "airappmarket-sync.json artifact not found."
+          }
+          .\LanMountainDesktop.SamplePlugin\scripts\Update-LanAirAppIndex.ps1 `
+            -IndexPath .\LanAirApp\airappmarket\index.json `
+            -SyncEntryPath $syncFile.FullName
+
+      - name: Validate AirApp Market index
+        shell: pwsh
+        run: dotnet run --project .\LanAirApp\airappmarket\tools\AirAppMarket.Validator -- .\LanAirApp\airappmarket\index.json .\LanAirApp\airappmarket\schema\airappmarket-index.schema.json
+
+      - name: Create AirApp Market sync PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
+          path: LanAirApp
+          branch: automation/airappmarket-${{ needs.build.outputs.release_tag }}
+          delete-branch: true
+          commit-message: "chore: sync market entry ${{ needs.build.outputs.release_tag }}"
+          title: "chore: sync market entry ${{ needs.build.outputs.release_tag }}"
+          body: |
+            Sync the official AirApp Market index for `${{ needs.build.outputs.release_tag }}`.
+          add-paths: |
+            airappmarket/index.json
