@@ -136,6 +136,10 @@ jobs:
         run: |
           $manifest = Get-Content .\LanMountainDesktop.SamplePlugin\plugin.json -Raw | ConvertFrom-Json
           $version = $manifest.version.Trim()
+          $requestedVersion = "${{ steps.release_plan.outputs.version }}".Trim()
+          if ($version -ne $requestedVersion) {
+            throw "Plugin manifest version '$version' does not match requested release version '$requestedVersion'."
+          }
           $assetName = "$($manifest.id).$version.laapp"
           "version=$version" >> $env:GITHUB_OUTPUT
           "release_tag=v$version" >> $env:GITHUB_OUTPUT
