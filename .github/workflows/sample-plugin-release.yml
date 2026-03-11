@@ -84,6 +84,52 @@ jobs:
         shell: pwsh
         run: .\LanMountainDesktop.SamplePlugin\scripts\Test-PluginConsistency.ps1 -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
 
+      - name: Prepare release source commit
+        id: release_source
+        shell: pwsh
+        run: |
+          $repoPath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
+          $releaseTag = "${{ steps.release_plan.outputs.release_tag }}"
+          $eventName = "${{ github.event_name }}"
+          $versionFiles = @(
+            "LanMountainDesktop.SamplePlugin.csproj",
+            "plugin.json",
+            "README.md"
+          )
+
+          git -C $repoPath config user.name "github-actions[bot]"
+          git -C $repoPath config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          $statusLines = git -C $repoPath status --porcelain -- $versionFiles
+          $hasVersionFileChanges = $statusLines.Count -gt 0
+
+          if ($eventName -eq "workflow_dispatch") {
+            if ($hasVersionFileChanges) {
+              $sourceBranch = "automation/release-source-$releaseTag"
+              git -C $repoPath checkout -B $sourceBranch
+              git -C $repoPath add -- $versionFiles
+              git -C $repoPath commit -m "chore: prepare release $releaseTag"
+              git -C $repoPath push origin HEAD:refs/heads/$sourceBranch --force
+              $targetCommitish = (git -C $repoPath rev-parse HEAD).Trim()
+              $temporaryBranch = $sourceBranch
+            }
+            else {
+              $targetCommitish = (git -C $repoPath rev-parse HEAD).Trim()
+              $temporaryBranch = ""
+            }
+          }
+          else {
+            if ($hasVersionFileChanges) {
+              throw "Tag '$releaseTag' does not point to source files with matching plugin version metadata. Create the matching version commit first, or use workflow_dispatch to prepare the release version automatically."
+            }
+
+            $targetCommitish = (git -C $repoPath rev-parse HEAD).Trim()
+            $temporaryBranch = ""
+          }
+
+          "target_commitish=$targetCommitish" >> $env:GITHUB_OUTPUT
+          "temporary_branch=$temporaryBranch" >> $env:GITHUB_OUTPUT
+
       - name: Resolve build metadata
         id: metadata
         shell: pwsh
@@ -91,11 +137,10 @@ jobs:
           $manifest = Get-Content .\LanMountainDesktop.SamplePlugin\plugin.json -Raw | ConvertFrom-Json
           $version = $manifest.version.Trim()
           $assetName = "$($manifest.id).$version.laapp"
-          $targetCommitish = (git -C .\LanMountainDesktop.SamplePlugin rev-parse HEAD).Trim()
           "version=$version" >> $env:GITHUB_OUTPUT
           "release_tag=v$version" >> $env:GITHUB_OUTPUT
           "asset_name=$assetName" >> $env:GITHUB_OUTPUT
-          "target_commitish=$targetCommitish" >> $env:GITHUB_OUTPUT
+          "target_commitish=${{ steps.release_source.outputs.target_commitish }}" >> $env:GITHUB_OUTPUT
 
       - name: Build plugin package
         shell: pwsh
@@ -159,6 +204,11 @@ jobs:
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete temporary release source branch
+        if: steps.release_source.outputs.temporary_branch != ''
+        shell: pwsh
+        run: git -C .\LanMountainDesktop.SamplePlugin push origin --delete "${{ steps.release_source.outputs.temporary_branch }}"
 
   sync-root-fallback-pr:
     needs: release
