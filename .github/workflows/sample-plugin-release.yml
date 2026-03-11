@@ -170,24 +170,6 @@ jobs:
             -Md5 $md5 `
             -Sha256 $sha256 `
             -OutputPath .\LanMountainDesktop.SamplePlugin\artifacts\release-notes.md
-          .\LanMountainDesktop.SamplePlugin\scripts\New-AirAppMarketSync.ps1 `
-            -TemplatePath .\LanMountainDesktop.SamplePlugin\airappmarket-entry.template.json `
-            -PackagePath $packagePath `
-            -Version "${{ steps.metadata.outputs.version }}" `
-            -OutputPath .\LanMountainDesktop.SamplePlugin\artifacts\airappmarket-sync.json
-
-      - name: Upload release artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: sample-plugin-release
-          path: |
-            LanMountainDesktop.SamplePlugin/${{ steps.metadata.outputs.asset_name }}
-            LanMountainDesktop.SamplePlugin/artifacts/sha256.txt
-            LanMountainDesktop.SamplePlugin/artifacts/md5.txt
-            LanMountainDesktop.SamplePlugin/artifacts/release-notes.md
-            LanMountainDesktop.SamplePlugin/artifacts/airappmarket-sync.json
-          if-no-files-found: error
-          retention-days: 30
 
       - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2
@@ -200,7 +182,6 @@ jobs:
             LanMountainDesktop.SamplePlugin/${{ steps.metadata.outputs.asset_name }}
             LanMountainDesktop.SamplePlugin/artifacts/sha256.txt
             LanMountainDesktop.SamplePlugin/artifacts/md5.txt
-            LanMountainDesktop.SamplePlugin/artifacts/airappmarket-sync.json
           fail_on_unmatched_files: true
           overwrite_files: true
           draft: false
@@ -209,8 +190,76 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download and verify published release asset
+        shell: pwsh
+        run: |
+          $assetName = "${{ steps.metadata.outputs.asset_name }}"
+          $releaseTag = "${{ steps.metadata.outputs.release_tag }}"
+          $repository = "${{ github.repository }}"
+          $expectedPackagePath = (Resolve-Path ".\LanMountainDesktop.SamplePlugin\$assetName").Path
+          $verifiedDirectory = (Join-Path (Resolve-Path ".\LanMountainDesktop.SamplePlugin\artifacts").Path "verified")
+          $verifiedPackagePath = Join-Path $verifiedDirectory $assetName
+          $expectedHash = (Get-FileHash -Path $expectedPackagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $expectedMd5 = (Get-FileHash -Path $expectedPackagePath -Algorithm MD5).Hash.ToLowerInvariant()
+          $expectedSize = (Get-Item $expectedPackagePath).Length
+          $downloadUrl = "https://github.com/$repository/releases/download/$releaseTag/$assetName"
+
+          New-Item -ItemType Directory -Force -Path $verifiedDirectory | Out-Null
+
+          $maxAttempts = 8
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            try {
+              Invoke-WebRequest `
+                -Uri $downloadUrl `
+                -Headers @{ "User-Agent" = "LanMountainDesktop.SamplePlugin.ReleaseWorkflow/1.0" } `
+                -OutFile $verifiedPackagePath
+              break
+            }
+            catch {
+              if ($attempt -eq $maxAttempts) {
+                throw
+              }
+
+              Start-Sleep -Seconds ([Math]::Min(5 * $attempt, 30))
+            }
+          }
+
+          $actualHash = (Get-FileHash -Path $verifiedPackagePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $actualMd5 = (Get-FileHash -Path $verifiedPackagePath -Algorithm MD5).Hash.ToLowerInvariant()
+          $actualSize = (Get-Item $verifiedPackagePath).Length
+
+          if ($expectedHash -ne $actualHash -or $expectedMd5 -ne $actualMd5 -or $expectedSize -ne $actualSize) {
+            throw "Published release asset mismatch. Url='$downloadUrl'; Expected SHA256='$expectedHash'; Actual SHA256='$actualHash'; Expected MD5='$expectedMd5'; Actual MD5='$actualMd5'; Expected Size='$expectedSize'; Actual Size='$actualSize'."
+          }
+
+          Set-Content -Path .\LanMountainDesktop.SamplePlugin\artifacts\sha256.txt -Value $actualHash -Encoding utf8NoBOM
+          Set-Content -Path .\LanMountainDesktop.SamplePlugin\artifacts\md5.txt -Value $actualMd5 -Encoding utf8NoBOM
+
+      - name: Generate verified AirApp Market sync metadata
+        shell: pwsh
+        run: |
+          $verifiedPackagePath = Resolve-Path ".\LanMountainDesktop.SamplePlugin\artifacts\verified\${{ steps.metadata.outputs.asset_name }}"
+          .\LanMountainDesktop.SamplePlugin\scripts\New-AirAppMarketSync.ps1 `
+            -TemplatePath .\LanMountainDesktop.SamplePlugin\airappmarket-entry.template.json `
+            -PackagePath $verifiedPackagePath `
+            -Version "${{ steps.metadata.outputs.version }}" `
+            -OutputPath .\LanMountainDesktop.SamplePlugin\artifacts\airappmarket-sync.json
+
+      - name: Upload verified release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-plugin-release
+          path: |
+            LanMountainDesktop.SamplePlugin/artifacts/verified/${{ steps.metadata.outputs.asset_name }}
+            LanMountainDesktop.SamplePlugin/artifacts/sha256.txt
+            LanMountainDesktop.SamplePlugin/artifacts/md5.txt
+            LanMountainDesktop.SamplePlugin/artifacts/release-notes.md
+            LanMountainDesktop.SamplePlugin/artifacts/airappmarket-sync.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Delete temporary release source branch
-        if: steps.release_source.outputs.temporary_branch != ''
+        if: always() && steps.release_source.outputs.temporary_branch != ''
         shell: pwsh
         run: git -C .\LanMountainDesktop.SamplePlugin push origin --delete "${{ steps.release_source.outputs.temporary_branch }}"
 
@@ -403,3 +452,91 @@ jobs:
             throw "AirApp Market sync did not produce a PR and was not reported as already up to date."
           }
           Write-Host "LanAirApp market index already matches the released version."
+
+  close-stale-sync-prs:
+    needs:
+      - release
+      - sync-root-fallback-pr
+      - sync-airappmarket-pr
+    runs-on: windows-latest
+    env:
+      ROOT_SYNC_TOKEN: ${{ secrets.SAMPLE_PLUGIN_PR_TOKEN != '' && secrets.SAMPLE_PLUGIN_PR_TOKEN || secrets.GITHUB_TOKEN }}
+      LANAIRAPP_INDEX_TOKEN: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
+
+    steps:
+      - name: Close stale root fallback PRs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ env.ROOT_SYNC_TOKEN }}
+          script: |
+            const currentRef = `automation/root-fallback-${{ needs.release.outputs.release_tag }}`;
+            const { owner, repo } = context.repo;
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: "open",
+              per_page: 100
+            });
+
+            for (const pull of pulls) {
+              if (!pull.head.ref.startsWith("automation/root-fallback-v") || pull.head.ref === currentRef) {
+                continue;
+              }
+
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: pull.number,
+                state: "closed"
+              });
+
+              try {
+                await github.rest.git.deleteRef({
+                  owner,
+                  repo,
+                  ref: `heads/${pull.head.ref}`
+                });
+              }
+              catch (error) {
+                core.warning(`Failed to delete stale root fallback branch '${pull.head.ref}': ${error.message}`);
+              }
+            }
+
+      - name: Close stale AirApp Market sync PRs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ env.LANAIRAPP_INDEX_TOKEN }}
+          script: |
+            const currentRef = `automation/airappmarket-${{ needs.release.outputs.release_tag }}`;
+            const owner = "wwiinnddyy";
+            const repo = "LanAirApp";
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: "open",
+              per_page: 100
+            });
+
+            for (const pull of pulls) {
+              if (!pull.head.ref.startsWith("automation/airappmarket-v") || pull.head.ref === currentRef) {
+                continue;
+              }
+
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: pull.number,
+                state: "closed"
+              });
+
+              try {
+                await github.rest.git.deleteRef({
+                  owner,
+                  repo,
+                  ref: `heads/${pull.head.ref}`
+                });
+              }
+              catch (error) {
+                core.warning(`Failed to delete stale AirApp Market branch '${pull.head.ref}': ${error.message}`);
+              }
+            }
