@@ -26,8 +26,9 @@
 - `Sample Plugin Release` 只负责发布：在推送 `v*` 标签或手动触发时创建或更新 GitHub Release
 - 手动触发发布时，workflow 会先写入 `plugin.json`、`.csproj` 和根目录 `README.md` 的版本号，再基于这个版本提交创建 Release
 - 推送 `v*` 标签发布时，workflow 要求标签本身已经指向版本号匹配的源码提交，否则会直接失败
-- 发布完成后，`Sample Plugin Release` 会自动为本仓库创建 PR，同步根目录 `.laapp` 和版本文件
-- 发布完成后，`Sample Plugin Release` 也会自动为 `LanAirApp` 创建 PR，同步官方市场索引
+- 发布完成后，`Sample Plugin Release` 会自动创建并合并本仓库同步 PR，把根目录 `.laapp` 和版本文件落回 `main`
+- 发布完成后，`Sample Plugin Release` 也会自动创建并合并 `LanAirApp` 同步 PR，把官方市场索引落回 `main`
+- 如果任一同步 PR 无法创建或合并，整个发布会直接失败，不允许 release 成功但主线仍停留旧版本
 
 ## English
 
@@ -55,5 +56,6 @@ This repository is the standalone sample plugin for LanMountainDesktop and the r
 - `Sample Plugin Release` handles publishing only on `v*` tags or manual dispatch
 - on manual dispatch, the workflow writes the release version into `plugin.json`, the `.csproj`, and the repository-root `README.md` before creating the Release
 - on `v*` tag pushes, the workflow requires the tag to already point to a commit whose version files match the tag
-- after a release, the release workflow opens a PR in this repository to sync the root fallback package and version files
-- after a release, the release workflow also opens a PR in `LanAirApp` to sync the official market index
+- after a release, the workflow creates and merges a PR in this repository to sync the root fallback package and version files back to `main`
+- after a release, the workflow also creates and merges a PR in `LanAirApp` to sync the official market index back to `main`
+- if either sync PR cannot be created or merged, the release fails instead of leaving `main` on an older version

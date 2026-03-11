@@ -217,6 +217,8 @@ jobs:
   sync-root-fallback-pr:
     needs: release
     runs-on: windows-latest
+    env:
+      ROOT_SYNC_TOKEN: ${{ secrets.SAMPLE_PLUGIN_PR_TOKEN != '' && secrets.SAMPLE_PLUGIN_PR_TOKEN || secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout sample plugin
@@ -244,10 +246,10 @@ jobs:
           Copy-Item $package.FullName (Join-Path (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path $package.Name) -Force
 
       - name: Create root fallback PR
-        continue-on-error: true
+        id: root_fallback_pr
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.SAMPLE_PLUGIN_PR_TOKEN != '' && secrets.SAMPLE_PLUGIN_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ env.ROOT_SYNC_TOKEN }}
           path: LanMountainDesktop.SamplePlugin
           branch: automation/root-fallback-${{ needs.release.outputs.release_tag }}
           delete-branch: true
@@ -261,6 +263,41 @@ jobs:
             plugin.json
             README.md
 
+      - name: Merge root fallback PR
+        if: steps.root_fallback_pr.outputs.pull-request-number != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ env.ROOT_SYNC_TOKEN }}
+          script: |
+            const pullNumber = Number("${{ steps.root_fallback_pr.outputs.pull-request-number }}");
+            const { owner, repo } = context.repo;
+
+            const pull = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber
+            });
+
+            if (pull.data.state !== "open") {
+              throw new Error(`Root fallback PR #${pullNumber} is not open.`);
+            }
+
+            await github.rest.pulls.merge({
+              owner,
+              repo,
+              pull_number: pullNumber,
+              merge_method: "squash"
+            });
+
+      - name: Verify root fallback sync result
+        if: steps.root_fallback_pr.outputs.pull-request-number == ''
+        shell: pwsh
+        run: |
+          if ("${{ steps.root_fallback_pr.outputs.pull-request-operation }}" -ne "none") {
+            throw "Root fallback sync did not produce a PR and was not reported as already up to date."
+          }
+          Write-Host "Root fallback files already match the released version."
+
   sync-airappmarket-pr:
     needs: release
     runs-on: windows-latest
@@ -269,26 +306,19 @@ jobs:
 
     steps:
       - name: Check AirApp sync token
-        id: airappmarket_token
         shell: pwsh
         run: |
           if ([string]::IsNullOrWhiteSpace($env:LANAIRAPP_INDEX_TOKEN)) {
-            "available=false" >> $env:GITHUB_OUTPUT
-            Write-Host "LANAIRAPP_INDEX_TOKEN is not configured. Skipping AirApp Market sync."
-          }
-          else {
-            "available=true" >> $env:GITHUB_OUTPUT
+            throw "LANAIRAPP_INDEX_TOKEN is required because release completion depends on synchronizing LanAirApp main."
           }
 
       - name: Checkout sample plugin
-        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           path: LanMountainDesktop.SamplePlugin
 
       - name: Checkout LanAirApp
-        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ env.MARKET_REPOSITORY }}
@@ -298,20 +328,17 @@ jobs:
           ref: main
 
       - name: Download release artifacts
-        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/download-artifact@v4
         with:
           name: sample-plugin-release
           path: downloaded
 
       - name: Setup .NET
-        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Update AirApp Market index
-        if: steps.airappmarket_token.outputs.available == 'true'
         shell: pwsh
         run: |
           $syncFile = Get-ChildItem .\downloaded -Recurse -Filter "airappmarket-sync.json" | Select-Object -First 1
@@ -323,13 +350,11 @@ jobs:
             -SyncEntryPath $syncFile.FullName
 
       - name: Validate AirApp Market index
-        if: steps.airappmarket_token.outputs.available == 'true'
         shell: pwsh
         run: dotnet run --project .\LanAirApp\airappmarket\tools\AirAppMarket.Validator -- .\LanAirApp\airappmarket\index.json .\LanAirApp\airappmarket\schema\airappmarket-index.schema.json
 
       - name: Create AirApp Market sync PR
-        if: steps.airappmarket_token.outputs.available == 'true'
-        continue-on-error: true
+        id: airappmarket_pr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ env.LANAIRAPP_INDEX_TOKEN }}
@@ -342,3 +367,39 @@ jobs:
             Sync the official AirApp Market index for `${{ needs.release.outputs.release_tag }}`.
           add-paths: |
             airappmarket/index.json
+
+      - name: Merge AirApp Market sync PR
+        if: steps.airappmarket_pr.outputs.pull-request-number != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ env.LANAIRAPP_INDEX_TOKEN }}
+          script: |
+            const pullNumber = Number("${{ steps.airappmarket_pr.outputs.pull-request-number }}");
+            const owner = "wwiinnddyy";
+            const repo = "LanAirApp";
+
+            const pull = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber
+            });
+
+            if (pull.data.state !== "open") {
+              throw new Error(`AirApp Market sync PR #${pullNumber} is not open.`);
+            }
+
+            await github.rest.pulls.merge({
+              owner,
+              repo,
+              pull_number: pullNumber,
+              merge_method: "squash"
+            });
+
+      - name: Verify AirApp sync result
+        if: steps.airappmarket_pr.outputs.pull-request-number == ''
+        shell: pwsh
+        run: |
+          if ("${{ steps.airappmarket_pr.outputs.pull-request-operation }}" -ne "none") {
+            throw "AirApp Market sync did not produce a PR and was not reported as already up to date."
+          }
+          Write-Host "LanAirApp market index already matches the released version."
