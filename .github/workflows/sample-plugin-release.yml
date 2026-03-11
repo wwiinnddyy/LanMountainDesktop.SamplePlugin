@@ -210,36 +210,54 @@ jobs:
   sync-airappmarket-pr:
     needs: release
     runs-on: windows-latest
-    if: ${{ secrets.LANAIRAPP_INDEX_TOKEN != '' }}
+    env:
+      LANAIRAPP_INDEX_TOKEN: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
 
     steps:
+      - name: Check AirApp sync token
+        id: airappmarket_token
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:LANAIRAPP_INDEX_TOKEN)) {
+            "available=false" >> $env:GITHUB_OUTPUT
+            Write-Host "LANAIRAPP_INDEX_TOKEN is not configured. Skipping AirApp Market sync."
+          }
+          else {
+            "available=true" >> $env:GITHUB_OUTPUT
+          }
+
       - name: Checkout sample plugin
+        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           path: LanMountainDesktop.SamplePlugin
 
       - name: Checkout LanAirApp
+        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ env.MARKET_REPOSITORY }}
           fetch-depth: 0
           path: LanAirApp
-          token: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
+          token: ${{ env.LANAIRAPP_INDEX_TOKEN }}
           ref: main
 
       - name: Download release artifacts
+        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/download-artifact@v4
         with:
           name: sample-plugin-release
           path: downloaded
 
       - name: Setup .NET
+        if: steps.airappmarket_token.outputs.available == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Update AirApp Market index
+        if: steps.airappmarket_token.outputs.available == 'true'
         shell: pwsh
         run: |
           $syncFile = Get-ChildItem .\downloaded -Recurse -Filter "airappmarket-sync.json" | Select-Object -First 1
@@ -251,14 +269,16 @@ jobs:
             -SyncEntryPath $syncFile.FullName
 
       - name: Validate AirApp Market index
+        if: steps.airappmarket_token.outputs.available == 'true'
         shell: pwsh
         run: dotnet run --project .\LanAirApp\airappmarket\tools\AirAppMarket.Validator -- .\LanAirApp\airappmarket\index.json .\LanAirApp\airappmarket\schema\airappmarket-index.schema.json
 
       - name: Create AirApp Market sync PR
+        if: steps.airappmarket_token.outputs.available == 'true'
         continue-on-error: true
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
+          token: ${{ env.LANAIRAPP_INDEX_TOKEN }}
           path: LanAirApp
           branch: automation/airappmarket-${{ needs.release.outputs.release_tag }}
           delete-branch: true
