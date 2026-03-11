@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Committed release version, for example 1.2.3"
+        description: "Release version, for example 1.2.3"
         required: true
         type: string
       target_ref:
-        description: "Git ref to release from. The committed plugin version must already match the release version."
+        description: "Git ref to release from"
         required: false
         default: "main"
         type: string
@@ -76,6 +76,10 @@ jobs:
           "version=$version" >> $env:GITHUB_OUTPUT
           "release_tag=$releaseTag" >> $env:GITHUB_OUTPUT
 
+      - name: Apply release version
+        shell: pwsh
+        run: .\LanMountainDesktop.SamplePlugin\scripts\Set-PluginVersion.ps1 -Version "${{ steps.release_plan.outputs.version }}" -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
+
       - name: Validate plugin metadata
         shell: pwsh
         run: .\LanMountainDesktop.SamplePlugin\scripts\Test-PluginConsistency.ps1 -RepositoryRoot (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path
@@ -86,15 +90,10 @@ jobs:
         run: |
           $manifest = Get-Content .\LanMountainDesktop.SamplePlugin\plugin.json -Raw | ConvertFrom-Json
           $version = $manifest.version.Trim()
-          $requestedVersion = "${{ steps.release_plan.outputs.version }}".Trim()
-          if ($version -ne $requestedVersion) {
-            throw "Release version mismatch. Requested version is '$requestedVersion', but the committed plugin version is '$version'. Commit the version bump before publishing the Release."
-          }
-
           $assetName = "$($manifest.id).$version.laapp"
           $targetCommitish = (git -C .\LanMountainDesktop.SamplePlugin rev-parse HEAD).Trim()
           "version=$version" >> $env:GITHUB_OUTPUT
-          "release_tag=${{ steps.release_plan.outputs.release_tag }}" >> $env:GITHUB_OUTPUT
+          "release_tag=v$version" >> $env:GITHUB_OUTPUT
           "asset_name=$assetName" >> $env:GITHUB_OUTPUT
           "target_commitish=$targetCommitish" >> $env:GITHUB_OUTPUT
 
@@ -191,9 +190,10 @@ jobs:
           Copy-Item $package.FullName (Join-Path (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path $package.Name) -Force
 
       - name: Create root fallback PR
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SAMPLE_PLUGIN_PR_TOKEN != '' && secrets.SAMPLE_PLUGIN_PR_TOKEN || secrets.GITHUB_TOKEN }}
           path: LanMountainDesktop.SamplePlugin
           branch: automation/root-fallback-${{ needs.release.outputs.release_tag }}
           delete-branch: true
@@ -210,6 +210,7 @@ jobs:
   sync-airappmarket-pr:
     needs: release
     runs-on: windows-latest
+    if: ${{ secrets.LANAIRAPP_INDEX_TOKEN != '' }}
 
     steps:
       - name: Checkout sample plugin
@@ -254,6 +255,7 @@ jobs:
         run: dotnet run --project .\LanAirApp\airappmarket\tools\AirAppMarket.Validator -- .\LanAirApp\airappmarket\index.json .\LanAirApp\airappmarket\schema\airappmarket-index.schema.json
 
       - name: Create AirApp Market sync PR
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
