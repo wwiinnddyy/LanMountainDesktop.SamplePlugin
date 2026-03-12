@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "LanMountainDesktop.SamplePlugin/0.0.12": {
+      "LanMountainDesktop.SamplePlugin/0.1.1": {
         "dependencies": {
           "Humanizer.Core": "2.14.1"
         },
@@ -181,7 +181,7 @@
     }
   },
   "libraries": {
-    "LanMountainDesktop.SamplePlugin/0.0.12": {
+    "LanMountainDesktop.SamplePlugin/0.1.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

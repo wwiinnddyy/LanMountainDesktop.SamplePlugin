@@ -859,7 +859,7 @@
     "C:\\Users\\USER182287\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "0.0.12",
+    "version": "0.1.1",
     "restore": {
       "projectUniqueName": "C:\\Users\\USER182287\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
       "projectName": "LanMountainDesktop.SamplePlugin",
