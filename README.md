@@ -46,6 +46,10 @@ This repository is the standalone sample plugin for LanMountainDesktop and the r
 - Current version: `0.0.12`
 - Current release tag: `v0.0.12`
 - Current root package: `LanMountainDesktop.SamplePlugin.0.0.12.laapp`
+- Plugin API baseline: `2.0.0`
+- Entry model: `Initialize(HostBuilderContext, IServiceCollection)`
+- Private managed dependencies are supported and packaged with the plugin output. This sample now includes `Humanizer.Core` as a plugin-only dependency probe.
+- Shared contracts are resolved from the official market. This sample declares `LanMountainDesktop.SharedContracts.SampleClock` and exports a clock service through that shared contract.
 - the desktop market resolves the exact GitHub Release asset first
 - if Release resolution fails, the host falls back to the repository root `.laapp`
 - plugin details always come from the repository root `README.md`
