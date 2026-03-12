@@ -13,9 +13,9 @@
 
 ### 发布约定
 
-- 当前版本：`0.0.12`
-- 当前 Release 标签：`v0.0.12`
-- 当前根目录发布包：`LanMountainDesktop.SamplePlugin.0.0.12.laapp`
+- 当前版本：`0.1.0`
+- 当前 Release 标签：`v0.1.0`
+- 当前根目录发布包：`LanMountainDesktop.SamplePlugin.0.1.0.laapp`
 - 阑山桌面插件市场会优先解析 GitHub Release 里的同名资产
 - 如果 Release 未发布、资产缺失或 GitHub API 无法解析，宿主会退回到仓库根目录 `.laapp`
 - 插件介绍始终读取仓库根目录 `README.md`
@@ -43,13 +43,13 @@ This repository is the standalone sample plugin for LanMountainDesktop and the r
 
 ### Publishing contract
 
-- Current version: `0.0.12`
-- Current release tag: `v0.0.12`
-- Current root package: `LanMountainDesktop.SamplePlugin.0.0.12.laapp`
+- Current version: `0.1.0`
+- Current release tag: `v0.1.0`
+- Current root package: `LanMountainDesktop.SamplePlugin.0.1.0.laapp`
 - Plugin API baseline: `2.0.0`
 - Entry model: `Initialize(HostBuilderContext, IServiceCollection)`
-- Private managed dependencies are supported and packaged with the plugin output. This sample now includes `Humanizer.Core` as a plugin-only dependency probe.
-- Shared contracts are resolved from the official market. This sample declares `LanMountainDesktop.SharedContracts.SampleClock` and exports a clock service through that shared contract.
+- Private managed dependencies are supported and packaged with the plugin output.
+- Shared contracts can be declared in `plugin.json.sharedContracts[]` and are resolved from the official market with version-isolated caching.
 - the desktop market resolves the exact GitHub Release asset first
 - if Release resolution fails, the host falls back to the repository root `.laapp`
 - plugin details always come from the repository root `README.md`
