@@ -12,11 +12,11 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("LanMountainDesktop.SamplePlugin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("0.0.12.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.12+c29e9177b63c3c10944f0c76255a4909c9654dc8")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.1.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.1+7f5870f9d75416281c5bf6576366dd4c698a444b")]
 [assembly: System.Reflection.AssemblyProductAttribute("LanMountainDesktop.SamplePlugin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LanMountainDesktop.SamplePlugin")]
-[assembly: System.Reflection.AssemblyVersionAttribute("0.0.12.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("0.1.1.0")]
 
 // 由 MSBuild WriteCodeFragment 类生成。
 

@@ -10,7 +10,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <WorkspaceRoot>$(MSBuildThisFileDirectory)..\</WorkspaceRoot>
-    <PluginSdkProjectPath>$(WorkspaceRoot)LanAirApp\LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
+    <PluginSdkProjectPath>$(WorkspaceRoot)LanMontainDesktop\LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
     <PluginPackageOutputDirectory>$(MSBuildThisFileDirectory)</PluginPackageOutputDirectory>
     <PluginPackagePath>$(PluginPackageOutputDirectory)$(AssemblyName).$(Version).laapp</PluginPackagePath>
     <LegacyLoosePluginOutputDirectory>$(WorkspaceRoot)LanMontainDesktop\bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\SamplePlugin\</LegacyLoosePluginOutputDirectory>
