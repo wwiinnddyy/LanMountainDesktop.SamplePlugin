@@ -4,7 +4,7 @@
   "description": "Example plugin used to validate PluginSdk loading and isolation.",
   "author": "LanMountainDesktop",
   "version": "",
-  "apiVersion": "1.0.0",
+  "apiVersion": "3.0.0",
   "minHostVersion": "0.0.1",
   "downloadUrl": "",
   "sha256": "",

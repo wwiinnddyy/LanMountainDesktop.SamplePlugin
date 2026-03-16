@@ -10,14 +10,20 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <WorkspaceRoot>$(MSBuildThisFileDirectory)..\</WorkspaceRoot>
-    <PluginSdkProjectPath>$(WorkspaceRoot)LanMontainDesktop\LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
+    <HostWorkspaceRoot>$(WorkspaceRoot)LanMontainDesktop\</HostWorkspaceRoot>
+    <AirAppWorkspaceRoot>$(WorkspaceRoot)LanAirApp\</AirAppWorkspaceRoot>
+    <PluginSdkProjectPath Condition="Exists('$(HostWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj')">$(HostWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
+    <PluginSdkProjectPath Condition="'$(PluginSdkProjectPath)' == '' and Exists('$(AirAppWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj')">$(AirAppWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
     <PluginPackageOutputDirectory>$(MSBuildThisFileDirectory)</PluginPackageOutputDirectory>
     <PluginPackagePath>$(PluginPackageOutputDirectory)$(AssemblyName).$(Version).laapp</PluginPackagePath>
     <LegacyLoosePluginOutputDirectory>$(WorkspaceRoot)LanMontainDesktop\bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\SamplePlugin\</LegacyLoosePluginOutputDirectory>
   </PropertyGroup>
 
+  <Target Name="ValidatePluginSdkProjectPath" BeforeTargets="Restore">
+    <Error Condition="'$(PluginSdkProjectPath)' == ''" Text="Could not resolve LanMountainDesktop.PluginSdk.csproj. Expected a sibling LanMontainDesktop or LanAirApp workspace checkout." />
+  </Target>
+
   <ItemGroup>
-    <PackageReference Include="Humanizer.Core" Version="2.14.1" />
     <ProjectReference Include="$(WorkspaceRoot)LanAirApp\LanMountainDesktop.SharedContracts.SampleClock\LanMountainDesktop.SharedContracts.SampleClock.csproj"
                       Private="false" />
     <ProjectReference Include="$(PluginSdkProjectPath)" Private="false" />

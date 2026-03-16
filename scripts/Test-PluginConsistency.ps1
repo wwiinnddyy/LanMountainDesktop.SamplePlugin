@@ -42,9 +42,14 @@ if (-not $csprojMatch.Success) {
 $csprojVersion = Get-VersionCore $csprojMatch.Groups["version"].Value
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
 $manifestVersion = Get-VersionCore $manifest.version
+$manifestApiVersion = Get-VersionCore $manifest.apiVersion
 
 if ($csprojVersion -ne $manifestVersion) {
     throw "Version mismatch. csproj=$csprojVersion plugin.json=$manifestVersion"
+}
+
+if ($manifestApiVersion -ne "3.0.0") {
+    throw "API version mismatch. Expected plugin.json apiVersion=3.0.0, actual=$manifestApiVersion"
 }
 
 $expectedAssetName = "$($manifest.id).$csprojVersion.laapp"
@@ -57,4 +62,5 @@ if ($PackagePath) {
 }
 
 Write-Host "Plugin version: $csprojVersion"
+Write-Host "Plugin API version: $manifestApiVersion"
 Write-Host "Expected asset: $expectedAssetName"
