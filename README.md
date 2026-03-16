@@ -29,9 +29,9 @@
 
 ### 发布约定
 
-- 当前版本：`0.1.1`
-- 当前 Release 标签：`v0.1.1`
-- 当前根目录发布包：`LanMountainDesktop.SamplePlugin.0.1.1.laapp`
+- 当前版本：`0.2.0`
+- 当前 Release 标签：`v0.2.0`
+- 当前根目录发布包：`LanMountainDesktop.SamplePlugin.0.2.0.laapp`
 - 桌面市场优先解析 GitHub Release 同名资产
 - 若 Release 解析失败，宿主回退到仓库根目录 `.laapp`
 - 插件详情始终读取仓库根目录 `README.md`
@@ -65,9 +65,9 @@ This repository is the official sample plugin for LanMountainDesktop and the aut
 
 ### Publishing contract
 
-- Current version: `0.1.1`
-- Current release tag: `v0.1.1`
-- Current root package: `LanMountainDesktop.SamplePlugin.0.1.1.laapp`
+- Current version: `0.2.0`
+- Current release tag: `v0.2.0`
+- Current root package: `LanMountainDesktop.SamplePlugin.0.2.0.laapp`
 - the desktop market resolves the exact GitHub Release asset first
 - if Release resolution fails, the host falls back to the repository root `.laapp`
 - plugin details always come from the repository root `README.md`
