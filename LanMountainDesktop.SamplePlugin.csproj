@@ -10,17 +10,15 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <WorkspaceRoot>$(MSBuildThisFileDirectory)..\</WorkspaceRoot>
-    <HostWorkspaceRoot>$(WorkspaceRoot)LanMontainDesktop\</HostWorkspaceRoot>
-    <AirAppWorkspaceRoot>$(WorkspaceRoot)LanAirApp\</AirAppWorkspaceRoot>
+    <HostWorkspaceRoot>$(WorkspaceRoot)LanMountainDesktop\</HostWorkspaceRoot>
     <PluginSdkProjectPath Condition="Exists('$(HostWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj')">$(HostWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
-    <PluginSdkProjectPath Condition="'$(PluginSdkProjectPath)' == '' and Exists('$(AirAppWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj')">$(AirAppWorkspaceRoot)LanMountainDesktop.PluginSdk\LanMountainDesktop.PluginSdk.csproj</PluginSdkProjectPath>
     <PluginPackageOutputDirectory>$(MSBuildThisFileDirectory)</PluginPackageOutputDirectory>
     <PluginPackagePath>$(PluginPackageOutputDirectory)$(AssemblyName).$(Version).laapp</PluginPackagePath>
-    <LegacyLoosePluginOutputDirectory>$(WorkspaceRoot)LanMontainDesktop\bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\SamplePlugin\</LegacyLoosePluginOutputDirectory>
+    <LegacyLoosePluginOutputDirectory>$(HostWorkspaceRoot)bin\$(Configuration)\$(TargetFramework)\Extensions\Plugins\SamplePlugin\</LegacyLoosePluginOutputDirectory>
   </PropertyGroup>
 
   <Target Name="ValidatePluginSdkProjectPath" BeforeTargets="Restore">
-    <Error Condition="'$(PluginSdkProjectPath)' == ''" Text="Could not resolve LanMountainDesktop.PluginSdk.csproj. Expected a sibling LanMontainDesktop or LanAirApp workspace checkout." />
+    <Error Condition="'$(PluginSdkProjectPath)' == ''" Text="Could not resolve LanMountainDesktop.PluginSdk.csproj. Expected a sibling LanMountainDesktop workspace checkout." />
   </Target>
 
   <ItemGroup>

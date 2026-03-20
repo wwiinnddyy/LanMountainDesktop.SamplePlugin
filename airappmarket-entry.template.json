@@ -1,10 +1,10 @@
 {
   "id": "LanMountainDesktop.SamplePlugin",
   "name": "LanMountain Sample Plugin",
-  "description": "Example plugin used to validate PluginSdk loading and isolation.",
+  "description": "Official sample plugin used to validate PluginSdk v4 loading, appearance, and isolation.",
   "author": "LanMountainDesktop",
   "version": "",
-  "apiVersion": "3.0.0",
+  "apiVersion": "4.0.0",
   "minHostVersion": "0.0.1",
   "downloadUrl": "",
   "sha256": "",
@@ -23,5 +23,5 @@
   ],
   "publishedAt": "",
   "updatedAt": "",
-  "releaseNotes": "Reference plugin for SDK validation. The desktop app prefers the tagged GitHub Release asset and falls back to the repository root .laapp package when a Release asset cannot be resolved."
+  "releaseNotes": "Reference plugin for SDK v4 validation. The desktop app prefers the tagged GitHub Release asset and falls back to the repository root .laapp package when a Release asset cannot be resolved."
 }

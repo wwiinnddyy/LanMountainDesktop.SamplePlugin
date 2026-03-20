@@ -30,18 +30,11 @@ function Write-Utf8File([string]$Path, [string]$Content) {
 $notes = @"
 # LanMountainDesktop Sample Plugin $ReleaseTag
 
-## 中文
-
-- 发布包：$PackageName
-- 正式分发源：GitHub Release 资产
-- 仓库根目录的同名 `.laapp` 仍保留为市场回退源
-- 插件介绍仍以仓库根目录 `README.md` 为准
-
 ## English
 
 - Package: $PackageName
 - Canonical distribution: GitHub Release asset
-- The repository-root `.laapp` remains the market fallback
+- The repository-root `.laapp` remains the local fallback artifact
 - `README.md` in the repository root remains the canonical plugin introduction
 
 <!-- LANAIRAPP_PKG_MD5 {`"$PackageName`":`"$Md5`"} -->
