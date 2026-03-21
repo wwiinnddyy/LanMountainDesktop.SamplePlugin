@@ -45,13 +45,6 @@ jobs:
           path: LanMountainDesktop.SamplePlugin
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_ref || github.ref }}
 
-      - name: Checkout LanAirApp
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.MARKET_REPOSITORY }}
-          fetch-depth: 0
-          path: LanAirApp
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -266,6 +259,7 @@ jobs:
   sync-root-fallback-pr:
     needs: release
     runs-on: windows-latest
+    continue-on-error: true
     env:
       ROOT_SYNC_TOKEN: ${{ secrets.SAMPLE_PLUGIN_PR_TOKEN != '' && secrets.SAMPLE_PLUGIN_PR_TOKEN || secrets.GITHUB_TOKEN }}
 
@@ -350,24 +344,25 @@ jobs:
   sync-airappmarket-pr:
     needs: release
     runs-on: windows-latest
+    continue-on-error: true
     env:
       LANAIRAPP_INDEX_TOKEN: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
 
     steps:
       - name: Check AirApp sync token
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN == '' }}
         shell: pwsh
-        run: |
-          if ([string]::IsNullOrWhiteSpace($env:LANAIRAPP_INDEX_TOKEN)) {
-            throw "LANAIRAPP_INDEX_TOKEN is required because release completion depends on synchronizing LanAirApp main."
-          }
+        run: Write-Warning "LANAIRAPP_INDEX_TOKEN is not available, so AirApp Market sync is being skipped."
 
       - name: Checkout sample plugin
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           path: LanMountainDesktop.SamplePlugin
 
       - name: Checkout LanAirApp
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         uses: actions/checkout@v4
         with:
           repository: ${{ env.MARKET_REPOSITORY }}
@@ -377,17 +372,20 @@ jobs:
           ref: main
 
       - name: Download release artifacts
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         uses: actions/download-artifact@v4
         with:
           name: sample-plugin-release
           path: downloaded
 
       - name: Setup .NET
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Update AirApp Market index
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         shell: pwsh
         run: |
           $syncFile = Get-ChildItem .\downloaded -Recurse -Filter "airappmarket-sync.json" | Select-Object -First 1
@@ -399,10 +397,12 @@ jobs:
             -SyncEntryPath $syncFile.FullName
 
       - name: Validate AirApp Market index
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         shell: pwsh
         run: dotnet run --project .\LanAirApp\airappmarket\tools\AirAppMarket.Validator -- .\LanAirApp\airappmarket\index.json .\LanAirApp\airappmarket\schema\airappmarket-index.schema.json
 
       - name: Create AirApp Market sync PR
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         id: airappmarket_pr
         uses: peter-evans/create-pull-request@v7
         with:
@@ -418,7 +418,7 @@ jobs:
             airappmarket/index.json
 
       - name: Merge AirApp Market sync PR
-        if: steps.airappmarket_pr.outputs.pull-request-number != ''
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' && steps.airappmarket_pr.outputs.pull-request-number != '' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ env.LANAIRAPP_INDEX_TOKEN }}
@@ -445,7 +445,7 @@ jobs:
             });
 
       - name: Verify AirApp sync result
-        if: steps.airappmarket_pr.outputs.pull-request-number == ''
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' && steps.airappmarket_pr.outputs.pull-request-number == '' }}
         shell: pwsh
         run: |
           if ("${{ steps.airappmarket_pr.outputs.pull-request-operation }}" -ne "none") {
@@ -459,6 +459,8 @@ jobs:
       - sync-root-fallback-pr
       - sync-airappmarket-pr
     runs-on: windows-latest
+    continue-on-error: true
+    if: ${{ always() && needs.release.result == 'success' }}
     env:
       ROOT_SYNC_TOKEN: ${{ secrets.SAMPLE_PLUGIN_PR_TOKEN != '' && secrets.SAMPLE_PLUGIN_PR_TOKEN || secrets.GITHUB_TOKEN }}
       LANAIRAPP_INDEX_TOKEN: ${{ secrets.LANAIRAPP_INDEX_TOKEN }}
@@ -502,7 +504,13 @@ jobs:
               }
             }
 
+      - name: Warn when AirApp cleanup is skipped
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN == '' }}
+        shell: pwsh
+        run: Write-Warning "LANAIRAPP_INDEX_TOKEN is not available, so stale AirApp Market sync PR cleanup is being skipped."
+
       - name: Close stale AirApp Market sync PRs
+        if: ${{ env.LANAIRAPP_INDEX_TOKEN != '' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ env.LANAIRAPP_INDEX_TOKEN }}

@@ -38,6 +38,8 @@ This is the official sample plugin repository for LanMountainDesktop. It serves 
 ### Repository role
 
 - provide a directly buildable official sample plugin
+- restore `LanMountainDesktop.PluginSdk` and `LanMountainDesktop.SharedContracts.SampleClock` from the committed `packages/` feed during CI and release builds
+- use `scripts/Initialize-LocalPackageFeed.ps1` to refresh that feed from sibling source checkouts when working locally
 - generate the `.laapp` package in the repository root
 - keep `README.md` in the repository root as the canonical plugin introduction
 - serve as the sample plugin referenced by `LanAirApp/airappmarket/index.json`

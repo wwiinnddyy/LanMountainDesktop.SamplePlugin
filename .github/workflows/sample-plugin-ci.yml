@@ -8,7 +8,6 @@ on:
 
 env:
   DOTNET_VERSION: "10.0.x"
-  MARKET_REPOSITORY: "wwiinnddyy/LanAirApp"
 
 permissions:
   contents: read
@@ -23,13 +22,6 @@ jobs:
         with:
           fetch-depth: 0
           path: LanMountainDesktop.SamplePlugin
-
-      - name: Checkout LanAirApp
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.MARKET_REPOSITORY }}
-          fetch-depth: 0
-          path: LanAirApp
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
