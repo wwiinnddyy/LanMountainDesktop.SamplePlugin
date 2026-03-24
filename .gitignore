@@ -20,7 +20,7 @@
 
 # Workflow-generated release metadata
 /artifacts/*
-!/artifacts/airappmarket-sync.json
+!/artifacts/market-manifest.json
 
 # Local temp and logs
 .env

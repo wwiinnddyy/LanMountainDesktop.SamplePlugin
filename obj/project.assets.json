@@ -45,38 +45,8 @@
           }
         },
         "runtime": {
-          "lib/net8.0/Avalonia.Base.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.Controls.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.DesignerSupport.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.Dialogs.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.Markup.Xaml.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.Markup.dll": {
-            "related": ".Xaml.xml;.xml"
-          },
-          "lib/net8.0/Avalonia.Metal.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.MicroCom.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.OpenGL.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.Vulkan.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/Avalonia.dll": {
-            "related": ".Base.xml;.Controls.xml;.DesignerSupport.xml;.Dialogs.xml;.Markup.Xaml.xml;.Markup.xml;.Metal.xml;.MicroCom.xml;.OpenGL.xml;.Vulkan.xml;.xml"
           }
         },
         "build": {
@@ -98,22 +68,49 @@
           }
         },
         "runtime": {
-          "lib/net8.0/Avalonia.Remote.Protocol.dll": {
+          "lib/net8.0/_._": {
             "related": ".xml"
           }
         }
       },
-      "Humanizer.Core/2.14.1": {
+      "LanMountainDesktop.PluginSdk/4.0.0": {
         "type": "package",
+        "dependencies": {
+          "Avalonia": "11.3.12",
+          "LanMountainDesktop.Shared.Contracts": "1.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0",
+          "Microsoft.Extensions.Hosting.Abstractions": "10.0.0"
+        },
         "compile": {
-          "lib/net6.0/Humanizer.dll": {
-            "related": ".xml"
-          }
+          "lib/net10.0/LanMountainDesktop.PluginSdk.dll": {}
         },
         "runtime": {
-          "lib/net6.0/Humanizer.dll": {
-            "related": ".xml"
-          }
+          "lib/net10.0/_._": {}
+        },
+        "build": {
+          "buildTransitive/LanMountainDesktop.PluginSdk.props": {},
+          "buildTransitive/LanMountainDesktop.PluginSdk.targets": {}
+        }
+      },
+      "LanMountainDesktop.Shared.Contracts/1.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.3.12"
+        },
+        "compile": {
+          "lib/net10.0/LanMountainDesktop.Shared.Contracts.dll": {}
+        },
+        "runtime": {
+          "lib/net10.0/_._": {}
+        }
+      },
+      "LanMountainDesktop.SharedContracts.SampleClock/2.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/LanMountainDesktop.SharedContracts.SampleClock.dll": {}
+        },
+        "runtime": {
+          "lib/net10.0/_._": {}
         }
       },
       "MicroCom.Runtime/0.11.0": {
@@ -122,7 +119,7 @@
           "lib/net5.0/MicroCom.Runtime.dll": {}
         },
         "runtime": {
-          "lib/net5.0/MicroCom.Runtime.dll": {}
+          "lib/net5.0/_._": {}
         }
       },
       "Microsoft.Extensions.Configuration.Abstractions/10.0.0": {
@@ -136,7 +133,7 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.Configuration.Abstractions.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
@@ -152,7 +149,7 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
@@ -172,7 +169,7 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.Diagnostics.Abstractions.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
@@ -191,7 +188,7 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.FileProviders.Abstractions.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
@@ -214,7 +211,7 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.Hosting.Abstractions.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
@@ -233,7 +230,7 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
@@ -253,7 +250,7 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.Options.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
@@ -269,37 +266,12 @@
           }
         },
         "runtime": {
-          "lib/net10.0/Microsoft.Extensions.Primitives.dll": {
+          "lib/net10.0/_._": {
             "related": ".xml"
           }
         },
         "build": {
           "buildTransitive/net8.0/_._": {}
-        }
-      },
-      "LanMountainDesktop.PluginSdk/2.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v10.0",
-        "dependencies": {
-          "Avalonia": "11.3.12",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0",
-          "Microsoft.Extensions.Hosting.Abstractions": "10.0.0"
-        },
-        "compile": {
-          "bin/placeholder/LanMountainDesktop.PluginSdk.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/LanMountainDesktop.PluginSdk.dll": {}
-        }
-      },
-      "LanMountainDesktop.SharedContracts.SampleClock/2.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v10.0",
-        "compile": {
-          "bin/placeholder/LanMountainDesktop.SharedContracts.SampleClock.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/LanMountainDesktop.SharedContracts.SampleClock.dll": {}
         }
       }
     }
@@ -511,22 +483,41 @@
         "lib/netstandard2.0/Avalonia.Remote.Protocol.xml"
       ]
     },
-    "Humanizer.Core/2.14.1": {
-      "sha512": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
+    "LanMountainDesktop.PluginSdk/4.0.0": {
+      "sha512": "2kwUqAzltvCsJtWG9o0wkFL0ykXfgCAUIWfscVhMN8eWv1OprQrLdVkCucm6zLWGLk+kr6zxwJ3s3LVBmebMNg==",
       "type": "package",
-      "path": "humanizer.core/2.14.1",
+      "path": "lanmountaindesktop.pluginsdk/4.0.0",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
-        "humanizer.core.2.14.1.nupkg.sha512",
-        "humanizer.core.nuspec",
-        "lib/net6.0/Humanizer.dll",
-        "lib/net6.0/Humanizer.xml",
-        "lib/netstandard1.0/Humanizer.dll",
-        "lib/netstandard1.0/Humanizer.xml",
-        "lib/netstandard2.0/Humanizer.dll",
-        "lib/netstandard2.0/Humanizer.xml",
-        "logo.png"
+        "README.md",
+        "buildTransitive/LanMountainDesktop.PluginSdk.props",
+        "buildTransitive/LanMountainDesktop.PluginSdk.targets",
+        "lanmountaindesktop.pluginsdk.4.0.0.nupkg.sha512",
+        "lanmountaindesktop.pluginsdk.nuspec",
+        "lib/net10.0/LanMountainDesktop.PluginSdk.dll"
+      ]
+    },
+    "LanMountainDesktop.Shared.Contracts/1.0.0": {
+      "sha512": "BPJgdzi8cuTPH1uLIexBxCpc+5HrQTIarc4rsV529lhf84dEjknxmTXpGA+reBYhmIJiZO9ewFqUrclbS5xSNQ==",
+      "type": "package",
+      "path": "lanmountaindesktop.shared.contracts/1.0.0",
+      "files": [
+        ".nupkg.metadata",
+        "README.md",
+        "lanmountaindesktop.shared.contracts.1.0.0.nupkg.sha512",
+        "lanmountaindesktop.shared.contracts.nuspec",
+        "lib/net10.0/LanMountainDesktop.Shared.Contracts.dll"
+      ]
+    },
+    "LanMountainDesktop.SharedContracts.SampleClock/2.0.0": {
+      "sha512": "bojvdopWiL0WZPphQNSZ/DvNkLtzf3GO1gyapXtyCWOVNjD6nTjaS3Yabb+fGAr1n9OaCijWdd5b8nGZpbgb8g==",
+      "type": "package",
+      "path": "lanmountaindesktop.sharedcontracts.sampleclock/2.0.0",
+      "files": [
+        ".nupkg.metadata",
+        "lanmountaindesktop.sharedcontracts.sampleclock.2.0.0.nupkg.sha512",
+        "lanmountaindesktop.sharedcontracts.sampleclock.nuspec",
+        "lib/net10.0/LanMountainDesktop.SharedContracts.SampleClock.dll"
       ]
     },
     "MicroCom.Runtime/0.11.0": {
@@ -836,57 +827,41 @@
         "microsoft.extensions.primitives.nuspec",
         "useSharedDesignerContext.txt"
       ]
-    },
-    "LanMountainDesktop.PluginSdk/2.0.0": {
-      "type": "project",
-      "path": "../LanAirApp/LanMountainDesktop.PluginSdk/LanMountainDesktop.PluginSdk.csproj",
-      "msbuildProject": "../LanAirApp/LanMountainDesktop.PluginSdk/LanMountainDesktop.PluginSdk.csproj"
-    },
-    "LanMountainDesktop.SharedContracts.SampleClock/2.0.0": {
-      "type": "project",
-      "path": "../LanAirApp/LanMountainDesktop.SharedContracts.SampleClock/LanMountainDesktop.SharedContracts.SampleClock.csproj",
-      "msbuildProject": "../LanAirApp/LanMountainDesktop.SharedContracts.SampleClock/LanMountainDesktop.SharedContracts.SampleClock.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "Humanizer.Core >= 2.14.1",
-      "LanMountainDesktop.PluginSdk >= 2.0.0",
+      "LanMountainDesktop.PluginSdk >= 4.0.0",
       "LanMountainDesktop.SharedContracts.SampleClock >= 2.0.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\USER182287\\.nuget\\packages\\": {}
+    "C:\\Users\\USER154971\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "0.1.1",
+    "version": "0.3.1",
     "restore": {
-      "projectUniqueName": "C:\\Users\\USER182287\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
+      "projectUniqueName": "C:\\Users\\USER154971\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
       "projectName": "LanMountainDesktop.SamplePlugin",
-      "projectPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
-      "packagesPath": "C:\\Users\\USER182287\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\obj\\",
+      "projectPath": "C:\\Users\\USER154971\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\LanMountainDesktop.SamplePlugin.csproj",
+      "packagesPath": "C:\\Users\\USER154971\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\USER154971\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\USER182287\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\USER154971\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\NuGet.Config",
+        "C:\\Users\\USER154971\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "https://api.nuget.org/v3/index.json": {}
+        "C:\\Users\\USER154971\\Documents\\GitHub\\LanMountainDesktop.SamplePlugin\\packages": {}
       },
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {
-            "C:\\Users\\USER182287\\Documents\\GitHub\\LanAirApp\\LanMountainDesktop.PluginSdk\\LanMountainDesktop.PluginSdk.csproj": {
-              "projectPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanAirApp\\LanMountainDesktop.PluginSdk\\LanMountainDesktop.PluginSdk.csproj"
-            },
-            "C:\\Users\\USER182287\\Documents\\GitHub\\LanAirApp\\LanMountainDesktop.SharedContracts.SampleClock\\LanMountainDesktop.SharedContracts.SampleClock.csproj": {
-              "projectPath": "C:\\Users\\USER182287\\Documents\\GitHub\\LanAirApp\\LanMountainDesktop.SharedContracts.SampleClock\\LanMountainDesktop.SharedContracts.SampleClock.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {
@@ -899,15 +874,23 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "net10.0": {
         "targetAlias": "net10.0",
         "dependencies": {
-          "Humanizer.Core": {
+          "LanMountainDesktop.PluginSdk": {
+            "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+            "suppressParent": "All",
             "target": "Package",
-            "version": "[2.14.1, )"
+            "version": "[4.0.0, )"
+          },
+          "LanMountainDesktop.SharedContracts.SampleClock": {
+            "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[2.0.0, )"
           }
         },
         "imports": [
@@ -926,7 +909,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

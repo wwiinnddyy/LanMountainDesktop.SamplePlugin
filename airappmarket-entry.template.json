@@ -23,5 +23,5 @@
   ],
   "publishedAt": "",
   "updatedAt": "",
-  "releaseNotes": "Reference plugin for SDK v4 validation. The desktop app prefers the tagged GitHub Release asset and falls back to the repository root .laapp package when a Release asset cannot be resolved."
+  "releaseNotes": "Reference plugin for SDK v4 validation. The desktop app prefers the tagged GitHub Release asset and publishes a market-manifest.json contract with releaseAsset, rawFallback, and workspaceLocal package sources."
 }

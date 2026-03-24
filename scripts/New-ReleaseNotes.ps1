@@ -34,6 +34,7 @@ $notes = @"
 
 - Package: $PackageName
 - Canonical distribution: GitHub Release asset
+- `market-manifest.json` is published alongside the package for official market aggregation
 - The repository-root `.laapp` remains the local fallback artifact
 - `README.md` in the repository root remains the canonical plugin introduction
 
