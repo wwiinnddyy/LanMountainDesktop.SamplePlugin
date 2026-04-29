@@ -1,13 +1,13 @@
 {
     "schemaVersion":  "2.0.0",
-    "generatedAt":  "2026-03-24T14:31:45.5873440+00:00",
+    "generatedAt":  "2026-04-29T15:55:44.3606022+00:00",
     "manifest":  {
                      "id":  "LanMountainDesktop.SamplePlugin",
                      "name":  "LanMountain Sample Plugin",
-                     "description":  "Official sample plugin used to validate PluginSdk v4 loading, appearance, and isolation.",
+                     "description":  "Official sample plugin used to validate PluginSdk v5 loading, appearance, settings, and market installation.",
                      "author":  "LanMountainDesktop",
                      "version":  "0.3.1",
-                     "apiVersion":  "4.0.0",
+                     "apiVersion":  "5.0.0",
                      "sharedContracts":  [
                                              {
                                                  "id":  "LanMountainDesktop.SharedContracts.SampleClock",
@@ -22,11 +22,11 @@
                               ],
                      "releaseTag":  "v0.3.1",
                      "releaseAssetName":  "LanMountainDesktop.SamplePlugin.0.3.1.laapp",
-                     "releaseNotes":  "Reference plugin for SDK v4 validation. The desktop app prefers the tagged GitHub Release asset and publishes a market-manifest.json contract with releaseAsset, rawFallback, and workspaceLocal package sources."
+                     "releaseNotes":  "Reference plugin for SDK v5 validation. The desktop app prefers the tagged GitHub Release asset and publishes a market-manifest.json contract with releaseAsset, rawFallback, and workspaceLocal package sources."
                  },
     "compatibility":  {
                           "minHostVersion":  "0.0.1",
-                          "apiVersion":  "4.0.0",
+                          "apiVersion":  "5.0.0",
                           "sharedContracts":  [
                                                   {
                                                       "id":  "LanMountainDesktop.SharedContracts.SampleClock",
@@ -40,21 +40,27 @@
                        "readmeUrl":  "https://raw.githubusercontent.com/wwiinnddyy/LanMountainDesktop.SamplePlugin/main/README.md",
                        "homepageUrl":  "https://github.com/wwiinnddyy/LanMountainDesktop.SamplePlugin",
                        "repositoryUrl":  "https://github.com/wwiinnddyy/LanMountainDesktop.SamplePlugin",
-                       "iconUrl":  "https://raw.githubusercontent.com/wwiinnddyy/LanAirApp/main/airappmarket/assets/sample-plugin.svg"
+                       "iconUrl":  "https://raw.githubusercontent.com/wwiinnddyy/LanAirApp/main/airappmarket/assets/sample-plugin.svg",
+                       "tags":  [
+                                    "example",
+                                    "official",
+                                    "sdk"
+                                ],
+                       "releaseNotes":  "Reference plugin for SDK v5 validation. The desktop app prefers the tagged GitHub Release asset and publishes a market-manifest.json contract with releaseAsset, rawFallback, and workspaceLocal package sources."
                    },
     "publication":  {
                         "releaseTag":  "v0.3.1",
                         "releaseAssetName":  "LanMountainDesktop.SamplePlugin.0.3.1.laapp",
                         "downloadUrl":  "https://github.com/wwiinnddyy/LanMountainDesktop.SamplePlugin/releases/download/v0.3.1/LanMountainDesktop.SamplePlugin.0.3.1.laapp",
-                        "sha256":  "4f114014a11d9728952f6be7a5b6d79cf5243a81791e91b569121408bbdc9cda",
-                        "packageSizeBytes":  1705841,
+                        "sha256":  "d1d5a00d890bbd7f4d5e8370764a2930b5f13e21c76c4242f84e1b756a287abc",
+                        "packageSizeBytes":  43584,
                         "packageSources":  [
                                                {
                                                    "kind":  "releaseAsset",
                                                    "url":  "https://github.com/wwiinnddyy/LanMountainDesktop.SamplePlugin/releases/download/v0.3.1/LanMountainDesktop.SamplePlugin.0.3.1.laapp",
                                                    "assetName":  "LanMountainDesktop.SamplePlugin.0.3.1.laapp",
-                                                   "sha256":  "4f114014a11d9728952f6be7a5b6d79cf5243a81791e91b569121408bbdc9cda",
-                                                   "sizeBytes":  1705841,
+                                                   "sha256":  "d1d5a00d890bbd7f4d5e8370764a2930b5f13e21c76c4242f84e1b756a287abc",
+                                                   "sizeBytes":  43584,
                                                    "releaseTag":  "v0.3.1",
                                                    "priority":  0
                                                },
@@ -62,20 +68,42 @@
                                                    "kind":  "rawFallback",
                                                    "url":  "https://raw.githubusercontent.com/wwiinnddyy/LanMountainDesktop.SamplePlugin/main/LanMountainDesktop.SamplePlugin.0.3.1.laapp",
                                                    "assetName":  "LanMountainDesktop.SamplePlugin.0.3.1.laapp",
-                                                   "sha256":  "4f114014a11d9728952f6be7a5b6d79cf5243a81791e91b569121408bbdc9cda",
-                                                   "sizeBytes":  1705841,
+                                                   "sha256":  "d1d5a00d890bbd7f4d5e8370764a2930b5f13e21c76c4242f84e1b756a287abc",
+                                                   "sizeBytes":  43584,
                                                    "releaseTag":  "v0.3.1",
                                                    "priority":  1
                                                },
                                                {
                                                    "kind":  "workspaceLocal",
-                                                   "path":  "./LanMountainDesktop.SamplePlugin.0.3.1.laapp",
+                                                   "path":  "workspace://LanMountainDesktop.SamplePlugin/LanMountainDesktop.SamplePlugin.0.3.1.laapp",
                                                    "assetName":  "LanMountainDesktop.SamplePlugin.0.3.1.laapp",
-                                                   "sha256":  "4f114014a11d9728952f6be7a5b6d79cf5243a81791e91b569121408bbdc9cda",
-                                                   "sizeBytes":  1705841,
+                                                   "sha256":  "d1d5a00d890bbd7f4d5e8370764a2930b5f13e21c76c4242f84e1b756a287abc",
+                                                   "sizeBytes":  43584,
                                                    "releaseTag":  "v0.3.1",
                                                    "priority":  2
                                                }
                                            ]
-                    }
+                    },
+    "capabilities":  {
+                         "sharedContracts":  [
+                                                 {
+                                                     "id":  "LanMountainDesktop.SharedContracts.SampleClock",
+                                                     "version":  "2.0.0",
+                                                     "assemblyName":  "LanMountainDesktop.SharedContracts.SampleClock.dll"
+                                                 }
+                                             ],
+                         "desktopComponents":  [
+                                                   "LanMountainDesktop.SamplePlugin.StatusClock",
+                                                   "LanMountainDesktop.SamplePlugin.CloseDesktop"
+                                               ],
+                         "settingsSections":  [
+                                                  "status"
+                                              ],
+                         "exports":  [
+                                         "LanMountainDesktop.SharedContracts.SampleClock.ISampleClockExport"
+                                     ],
+                         "messageTypes":  [
+
+                                          ]
+                     }
 }

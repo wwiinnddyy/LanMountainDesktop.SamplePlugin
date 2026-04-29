@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LanMountainDesktop.PluginSdk" Version="4.0.0" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="LanMountainDesktop.PluginSdk" Version="5.0.0" ExcludeAssets="runtime;native" PrivateAssets="all" />
     <PackageReference Include="LanMountainDesktop.SharedContracts.SampleClock" Version="2.0.0" ExcludeAssets="runtime" PrivateAssets="all" />
     <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Localization\*.json" CopyToOutputDirectory="PreserveNewest" />

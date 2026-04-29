@@ -132,7 +132,7 @@ if ([string]::IsNullOrWhiteSpace($repositoryUrl)) {
 $repo = Get-RepositoryInfo -RepositoryUrl $repositoryUrl
 $releaseDownloadUrl = "https://github.com/$($repo.Owner)/$($repo.Name)/releases/download/$ReleaseTag/$assetName"
 $rawFallbackUrl = "https://raw.githubusercontent.com/$($repo.Owner)/$($repo.Name)/main/$assetName"
-$workspaceLocalPath = "./$assetName"
+$workspaceLocalPath = "workspace://$($repo.Name)/$assetName"
 
 $sharedContracts = @(
     Get-ArrayValue -Object $manifest -Name "sharedContracts" |
@@ -180,6 +180,8 @@ $entry = [pscustomobject][ordered]@{
         homepageUrl = [string](Get-PropertyValue $template "homepageUrl")
         repositoryUrl = [string](Get-PropertyValue $template "repositoryUrl")
         iconUrl = [string](Get-PropertyValue $template "iconUrl")
+        tags = $tags
+        releaseNotes = [string](Get-PropertyValue $template "releaseNotes")
     }
     publication = [pscustomobject][ordered]@{
         releaseTag = $ReleaseTag
@@ -216,6 +218,16 @@ $entry = [pscustomobject][ordered]@{
                 priority = 2
             }
         )
+    }
+    capabilities = [pscustomobject][ordered]@{
+        sharedContracts = $sharedContracts
+        desktopComponents = @(
+            "LanMountainDesktop.SamplePlugin.StatusClock",
+            "LanMountainDesktop.SamplePlugin.CloseDesktop"
+        )
+        settingsSections = @("status")
+        exports = @("LanMountainDesktop.SharedContracts.SampleClock.ISampleClockExport")
+        messageTypes = @()
     }
 }
 
