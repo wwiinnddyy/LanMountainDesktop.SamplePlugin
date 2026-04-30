@@ -16,15 +16,15 @@ Official sample plugin for LanMountainDesktop SDK v5.
 - Manifest file: `plugin.json`
 - Package format: `.laapp`
 - Runtime mode: `in-proc`
-- Current version: `0.3.1`
-- Current release tag: `v0.3.1`
-- Current package asset: `LanMountainDesktop.SamplePlugin.0.3.1.laapp`
+- Current version: `0.4.0`
+- Current release tag: `v0.4.0`
+- Current package asset: `LanMountainDesktop.SamplePlugin.0.4.0.laapp`
 
 ## Publishing Contract
 
 Release assets should include:
 
-- `LanMountainDesktop.SamplePlugin.0.3.1.laapp`
+- `LanMountainDesktop.SamplePlugin.0.4.0.laapp`
 - `market-manifest.json`
 - `sha256.txt`
 - `md5.txt`
