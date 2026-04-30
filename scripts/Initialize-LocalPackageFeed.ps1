@@ -22,10 +22,6 @@ if ([string]::IsNullOrWhiteSpace($CoreContractsProjectPath)) {
     $CoreContractsProjectPath = (Resolve-Path "..\LanMountainDesktop\LanMountainDesktop.Shared.Contracts\LanMountainDesktop.Shared.Contracts.csproj").Path
 }
 
-if ([string]::IsNullOrWhiteSpace($SharedContractProjectPath)) {
-    $SharedContractProjectPath = (Resolve-Path "..\LanAirApp\LanMountainDesktop.SharedContracts.SampleClock\LanMountainDesktop.SharedContracts.SampleClock.csproj").Path
-}
-
 function Pack-Project([string]$ProjectPath, [string]$OutputDirectory) {
     if (-not (Test-Path $ProjectPath)) {
         throw "Project '$ProjectPath' was not found."
@@ -37,6 +33,14 @@ function Pack-Project([string]$ProjectPath, [string]$OutputDirectory) {
 New-Item -ItemType Directory -Force -Path $FeedPath | Out-Null
 Pack-Project -ProjectPath $CoreContractsProjectPath -OutputDirectory $FeedPath
 Pack-Project -ProjectPath $PluginSdkProjectPath -OutputDirectory $FeedPath
-Pack-Project -ProjectPath $SharedContractProjectPath -OutputDirectory $FeedPath
+
+# SharedContractProjectPath is optional - only pack if provided and exists
+if (-not [string]::IsNullOrWhiteSpace($SharedContractProjectPath)) {
+    if (Test-Path $SharedContractProjectPath) {
+        Pack-Project -ProjectPath $SharedContractProjectPath -OutputDirectory $FeedPath
+    } else {
+        Write-Host "Shared contract project not found at '$SharedContractProjectPath', skipping."
+    }
+}
 
 Write-Host "Local package feed initialized at '$FeedPath'."
