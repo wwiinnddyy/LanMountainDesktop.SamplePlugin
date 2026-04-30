@@ -53,10 +53,14 @@ jobs:
           $feedPath = Join-Path (Resolve-Path ".\LanMountainDesktop.SamplePlugin").Path "packages"
           $sdkProject = Join-Path (Resolve-Path ".\LanMountainDesktop\LanMountainDesktop.PluginSdk").Path "LanMountainDesktop.PluginSdk.csproj"
           $contractsProject = Join-Path (Resolve-Path ".\LanMountainDesktop\LanMountainDesktop.Shared.Contracts").Path "LanMountainDesktop.Shared.Contracts.csproj"
+          $pluginIsolationContractsProject = Join-Path (Resolve-Path ".\LanMountainDesktop\LanMountainDesktop.PluginIsolation.Contracts").Path "LanMountainDesktop.PluginIsolation.Contracts.csproj"
+          $sharedIpcProject = Join-Path (Resolve-Path ".\LanMountainDesktop\LanMountainDesktop.Shared.IPC").Path "LanMountainDesktop.Shared.IPC.csproj"
           .\LanMountainDesktop.SamplePlugin\scripts\Initialize-LocalPackageFeed.ps1 `
             -FeedPath $feedPath `
             -PluginSdkProjectPath $sdkProject `
-            -CoreContractsProjectPath $contractsProject
+            -CoreContractsProjectPath $contractsProject `
+            -PluginIsolationContractsProjectPath $pluginIsolationContractsProject `
+            -SharedIpcProjectPath $sharedIpcProject
 
       - name: Resolve requested release version
         id: release_plan
