@@ -13,6 +13,7 @@ Official sample plugin for LanMountainDesktop SDK v5.
 
 - Target framework: `net10.0`
 - Plugin SDK: `LanMountainDesktop.PluginSdk` `5.0.0`
+- Minimum host version: `0.8.6`
 - Manifest file: `plugin.json`
 - Package format: `.laapp`
 - Runtime mode: `in-proc`

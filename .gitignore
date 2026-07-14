@@ -17,6 +17,7 @@
 /bin/
 /obj/
 *.binlog
+.nuget/
 
 # Workflow-generated release metadata
 /artifacts/*

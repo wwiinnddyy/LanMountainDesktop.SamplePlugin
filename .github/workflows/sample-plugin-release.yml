@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version, for example 0.3.1"
+        description: "Release version, for example 0.4.0"
         required: true
         type: string
 
@@ -122,7 +122,9 @@ jobs:
 
       - name: Build plugin package
         shell: pwsh
-        run: dotnet build .\LanMountainDesktop.SamplePlugin\LanMountainDesktop.SamplePlugin.csproj -c Release -v minimal
+        run: |
+          dotnet restore .\LanMountainDesktop.SamplePlugin\LanMountainDesktop.SamplePlugin.csproj --configfile .\LanMountainDesktop.SamplePlugin\NuGet.config --force --no-cache
+          dotnet build .\LanMountainDesktop.SamplePlugin\LanMountainDesktop.SamplePlugin.csproj -c Release -v minimal --no-restore
 
       - name: Validate built package
         shell: pwsh

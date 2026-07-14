@@ -55,4 +55,14 @@ if (-not [string]::IsNullOrWhiteSpace($SharedContractProjectPath)) {
     }
 }
 
+$repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$localPackagesRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot ".nuget\packages"))
+$localNuGetRoot = [System.IO.Path]::GetFullPath((Join-Path $repositoryRoot ".nuget"))
+if (-not $localPackagesRoot.StartsWith($localNuGetRoot + [System.IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "Refusing to clear unexpected NuGet cache path '$localPackagesRoot'."
+}
+if (Test-Path -LiteralPath $localPackagesRoot) {
+    Remove-Item -LiteralPath $localPackagesRoot -Recurse -Force
+}
+
 Write-Host "Local package feed initialized at '$FeedPath'."

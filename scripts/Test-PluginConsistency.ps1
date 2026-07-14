@@ -27,6 +27,32 @@ function Get-VersionCore([string]$Value) {
     return $candidate
 }
 
+function Get-ManifestFromPackage([string]$ArchivePath) {
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($ArchivePath)
+    try {
+        $entry = $archive.Entries | Where-Object { $_.FullName -eq "plugin.json" } | Select-Object -First 1
+        if ($null -eq $entry) {
+            throw "Plugin package '$ArchivePath' does not contain plugin.json."
+        }
+
+        $stream = $entry.Open()
+        $reader = [System.IO.StreamReader]::new($stream, [System.Text.UTF8Encoding]::UTF8, $true)
+        try {
+            return $reader.ReadToEnd() | ConvertFrom-Json
+        }
+        finally {
+            $reader.Dispose()
+            $stream.Dispose()
+        }
+    }
+    finally {
+        $archive.Dispose()
+    }
+}
+
 $csprojPath = Join-Path $RepositoryRoot "LanMountainDesktop.SamplePlugin.csproj"
 $manifestPath = Join-Path $RepositoryRoot "plugin.json"
 
@@ -37,6 +63,14 @@ $csprojMatch = [System.Text.RegularExpressions.Regex]::Match(
     [System.Text.RegularExpressions.RegexOptions]::Singleline)
 if (-not $csprojMatch.Success) {
     throw "Missing <Version> in '$csprojPath'."
+}
+
+if ($csprojContent -notmatch '<PackageReference\s+Include="LanMountainDesktop\.PluginSdk"\s+Version="5\.0\.0"') {
+    throw "Sample plugin must reference LanMountainDesktop.PluginSdk 5.0.0."
+}
+
+if ($csprojContent -match 'LanMountainDesktop\.AirAppSdk') {
+    throw "Production Plugin SDK projects must not reference LanMountainDesktop.AirAppSdk."
 }
 
 $csprojVersion = Get-VersionCore $csprojMatch.Groups["version"].Value
@@ -52,12 +86,34 @@ if ($manifestApiVersion -ne "5.0.0") {
     throw "API version mismatch. Expected plugin.json apiVersion=5.0.0, actual=$manifestApiVersion"
 }
 
+if ($manifest.id -ne "LanMountainDesktop.SamplePlugin") {
+    throw "Plugin id mismatch. Expected LanMountainDesktop.SamplePlugin, actual=$($manifest.id)"
+}
+
+if ($manifest.entranceAssembly -ne "LanMountainDesktop.SamplePlugin.dll") {
+    throw "Entrance assembly mismatch. Expected LanMountainDesktop.SamplePlugin.dll, actual=$($manifest.entranceAssembly)"
+}
+
+if ($manifest.runtime.mode -ne "in-proc") {
+    throw "Runtime mode mismatch. Expected in-proc, actual=$($manifest.runtime.mode)"
+}
+
 $expectedAssetName = "$($manifest.id).$csprojVersion.laapp"
 
 if ($PackagePath) {
     $resolvedPackagePath = Resolve-Path $PackagePath -ErrorAction Stop
     if ([System.IO.Path]::GetFileName($resolvedPackagePath) -ne $expectedAssetName) {
         throw "Package name mismatch. Expected '$expectedAssetName', actual '$([System.IO.Path]::GetFileName($resolvedPackagePath))'."
+    }
+
+
+    $packageManifest = Get-ManifestFromPackage -ArchivePath $resolvedPackagePath
+    if ($packageManifest.id -ne $manifest.id -or
+        $packageManifest.version -ne $manifest.version -or
+        $packageManifest.apiVersion -ne $manifest.apiVersion -or
+        $packageManifest.entranceAssembly -ne $manifest.entranceAssembly -or
+        $packageManifest.runtime.mode -ne $manifest.runtime.mode) {
+        throw "Package manifest does not match repository plugin.json."
     }
 }
 
