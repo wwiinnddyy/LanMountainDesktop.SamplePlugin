@@ -4,20 +4,22 @@
     <RestoreSuccess Condition=" '$(RestoreSuccess)' == '' ">True</RestoreSuccess>
     <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
     <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">$(MSBuildThisFileDirectory)project.assets.json</ProjectAssetsFile>
-    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
-    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\USER154971\.nuget\packages\</NuGetPackageFolders>
+    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">D:\github\LanDesktop\LanMountainDesktop.SamplePlugin\.nuget\packages</NuGetPackageRoot>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">D:\github\LanDesktop\LanMountainDesktop.SamplePlugin\.nuget\packages</NuGetPackageFolders>
     <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
     <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">7.0.0</NuGetToolVersion>
   </PropertyGroup>
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <SourceRoot Include="C:\Users\USER154971\.nuget\packages\" />
+    <SourceRoot Include="D:\github\LanDesktop\LanMountainDesktop.SamplePlugin\.nuget\packages\" />
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <Import Project="$(NuGetPackageRoot)avalonia\11.3.12\buildTransitive\Avalonia.props" Condition="Exists('$(NuGetPackageRoot)avalonia\11.3.12\buildTransitive\Avalonia.props')" />
-    <Import Project="$(NuGetPackageRoot)lanmountaindesktop.pluginsdk\4.0.0\buildTransitive\LanMountainDesktop.PluginSdk.props" Condition="Exists('$(NuGetPackageRoot)lanmountaindesktop.pluginsdk\4.0.0\buildTransitive\LanMountainDesktop.PluginSdk.props')" />
+    <Import Project="$(NuGetPackageRoot)\skiasharp.nativeassets.webassembly\3.119.3-preview.1.1\buildTransitive\netstandard1.0\SkiaSharp.NativeAssets.WebAssembly.props" Condition="Exists('$(NuGetPackageRoot)\skiasharp.nativeassets.webassembly\3.119.3-preview.1.1\buildTransitive\netstandard1.0\SkiaSharp.NativeAssets.WebAssembly.props')" />
+    <Import Project="$(NuGetPackageRoot)\avalonia\12.1.0\buildTransitive\Avalonia.props" Condition="Exists('$(NuGetPackageRoot)\avalonia\12.1.0\buildTransitive\Avalonia.props')" />
+    <Import Project="$(NuGetPackageRoot)\harfbuzzsharp.nativeassets.webassembly\8.3.1.3\buildTransitive\netstandard1.0\HarfBuzzSharp.NativeAssets.WebAssembly.props" Condition="Exists('$(NuGetPackageRoot)\harfbuzzsharp.nativeassets.webassembly\8.3.1.3\buildTransitive\netstandard1.0\HarfBuzzSharp.NativeAssets.WebAssembly.props')" />
+    <Import Project="$(NuGetPackageRoot)\lanmountaindesktop.pluginsdk\5.0.0\buildTransitive\LanMountainDesktop.PluginSdk.props" Condition="Exists('$(NuGetPackageRoot)\lanmountaindesktop.pluginsdk\5.0.0\buildTransitive\LanMountainDesktop.PluginSdk.props')" />
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgAvalonia_BuildServices Condition=" '$(PkgAvalonia_BuildServices)' == '' ">C:\Users\USER154971\.nuget\packages\avalonia.buildservices\11.3.2</PkgAvalonia_BuildServices>
-    <PkgAvalonia Condition=" '$(PkgAvalonia)' == '' ">C:\Users\USER154971\.nuget\packages\avalonia\11.3.12</PkgAvalonia>
+    <PkgAvalonia_BuildServices Condition=" '$(PkgAvalonia_BuildServices)' == '' ">D:\github\LanDesktop\LanMountainDesktop.SamplePlugin\.nuget\packages\avalonia.buildservices\11.3.2</PkgAvalonia_BuildServices>
+    <PkgAvalonia Condition=" '$(PkgAvalonia)' == '' ">D:\github\LanDesktop\LanMountainDesktop.SamplePlugin\.nuget\packages\avalonia\12.1.0</PkgAvalonia>
   </PropertyGroup>
 </Project>

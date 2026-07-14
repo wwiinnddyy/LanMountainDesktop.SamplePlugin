@@ -73,6 +73,10 @@ if ($csprojContent -match 'LanMountainDesktop\.AirAppSdk') {
     throw "Production Plugin SDK projects must not reference LanMountainDesktop.AirAppSdk."
 }
 
+if ($csprojContent -notmatch '<RestorePackagesPath>\$\(MSBuildProjectDirectory\)\\\.nuget\\packages</RestorePackagesPath>') {
+    throw "RestorePackagesPath must isolate packages under the repository .nuget/packages directory."
+}
+
 $csprojVersion = Get-VersionCore $csprojMatch.Groups["version"].Value
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
 $manifestVersion = Get-VersionCore $manifest.version

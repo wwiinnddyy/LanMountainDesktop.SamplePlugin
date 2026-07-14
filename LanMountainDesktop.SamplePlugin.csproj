@@ -15,6 +15,7 @@
     <LanMountainPluginPackageOutputDirectory>$(MSBuildThisFileDirectory)</LanMountainPluginPackageOutputDirectory>
     <LanMountainPluginPackageFileName>$(AssemblyName).$(LanMountainPluginPackageVersion)$(LanMountainPluginPackageExtension)</LanMountainPluginPackageFileName>
     <LanMountainPluginPackagePath>$(LanMountainPluginPackageOutputDirectory)$(LanMountainPluginPackageFileName)</LanMountainPluginPackagePath>
+    <RestorePackagesPath>$(MSBuildProjectDirectory)\.nuget\packages</RestorePackagesPath>
   </PropertyGroup>
 
   <ItemGroup>
