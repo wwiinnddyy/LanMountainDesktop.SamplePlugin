@@ -40,7 +40,7 @@ $assetName = "$pluginId.$normalizedVersion.laapp"
 $releaseTag = "v$normalizedVersion"
 
 $csprojPath = Join-Path $RepositoryRoot "LanMountainDesktop.SamplePlugin.csproj"
-$manifestPath = Join-Path $RepositoryRoot "plugin.json"
+$manifestPath = Join-Path $RepositoryRoot "airapp.json"
 $readmeTemplatePath = Join-Path $RepositoryRoot "README.template.md"
 $readmePath = Join-Path $RepositoryRoot "README.md"
 

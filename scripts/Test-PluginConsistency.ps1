@@ -54,7 +54,7 @@ function Get-ManifestFromPackage([string]$ArchivePath) {
 }
 
 $csprojPath = Join-Path $RepositoryRoot "LanMountainDesktop.SamplePlugin.csproj"
-$manifestPath = Join-Path $RepositoryRoot "plugin.json"
+$manifestPath = Join-Path $RepositoryRoot "airapp.json"
 
 $csprojContent = [System.IO.File]::ReadAllText($csprojPath)
 $csprojMatch = [System.Text.RegularExpressions.Regex]::Match(
@@ -83,11 +83,11 @@ $manifestVersion = Get-VersionCore $manifest.version
 $manifestApiVersion = Get-VersionCore $manifest.apiVersion
 
 if ($csprojVersion -ne $manifestVersion) {
-    throw "Version mismatch. csproj=$csprojVersion plugin.json=$manifestVersion"
+    throw "Version mismatch. csproj=$csprojVersion airapp.json=$manifestVersion"
 }
 
-if ($manifestApiVersion -ne "5.0.0") {
-    throw "API version mismatch. Expected plugin.json apiVersion=5.0.0, actual=$manifestApiVersion"
+if ($manifestApiVersion -ne "1.0.0") {
+    throw "API version mismatch. Expected airapp.json apiVersion=1.0.0, actual=$manifestApiVersion"
 }
 
 if ($manifest.id -ne "LanMountainDesktop.SamplePlugin") {

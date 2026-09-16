@@ -3,30 +3,30 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
-using LanMountainDesktop.PluginSdk;
+using LanMountainDesktop.AirAppSdk;
 
 namespace LanMountainDesktop.SamplePlugin;
 
 internal sealed class SamplePluginSettingsView : UserControl
 {
-    private readonly IPluginRuntimeContext _context;
-    private readonly PluginLocalizer _localizer;
+    private readonly IAirAppRuntimeContext _context;
+    private readonly AirAppLocalizer _localizer;
     private readonly SamplePluginRuntimeStateService _stateService;
     private readonly SamplePluginClockService _clockService;
-    private readonly IPluginMessageBus _messageBus;
+    private readonly IAirAppMessageBus _messageBus;
     private readonly StackPanel _pluginInfoPanel = new() { Spacing = 8 };
     private readonly StackPanel _capabilityPanel = new() { Spacing = 8 };
     private readonly StackPanel _statusPanel = new() { Spacing = 10 };
     private readonly List<IDisposable> _subscriptions = [];
 
     public SamplePluginSettingsView(
-        IPluginRuntimeContext context,
+        IAirAppRuntimeContext context,
         SamplePluginRuntimeStateService stateService,
         SamplePluginClockService clockService,
-        IPluginMessageBus messageBus)
+        IAirAppMessageBus messageBus)
     {
         _context = context;
-        _localizer = PluginLocalizer.Create(context);
+        _localizer = AirAppLocalizer.Create(context);
         _stateService = stateService;
         _clockService = clockService;
         _messageBus = messageBus;
@@ -126,7 +126,7 @@ internal sealed class SamplePluginSettingsView : UserControl
         _pluginInfoPanel.Children.Add(CreateInfoLine(
             T("settings.info.description", "描述"),
             T("plugin.description", snapshot.Manifest.Description ?? T("common.none", "（无）"))));
-        _pluginInfoPanel.Children.Add(CreateInfoLine(T("settings.info.plugin_directory", "插件目录"), snapshot.PluginDirectory));
+        _pluginInfoPanel.Children.Add(CreateInfoLine(T("settings.info.plugin_directory", "插件目录"), snapshot.AirAppDirectory));
         _pluginInfoPanel.Children.Add(CreateInfoLine(T("settings.info.data_directory", "数据目录"), snapshot.DataDirectory));
         _pluginInfoPanel.Children.Add(CreateInfoLine(T("settings.info.host_application", "宿主应用"), snapshot.HostApplicationName));
         _pluginInfoPanel.Children.Add(CreateInfoLine(T("settings.info.host_version", "宿主版本"), snapshot.HostVersion));
@@ -139,7 +139,7 @@ internal sealed class SamplePluginSettingsView : UserControl
             FormatBoolean(_context.GetService<SamplePluginClockService>() is not null)));
         _pluginInfoPanel.Children.Add(CreateInfoLine(
             T("settings.info.message_bus_resolved", "消息总线已解析"),
-            FormatBoolean(_context.GetService<IPluginMessageBus>() is not null)));
+            FormatBoolean(_context.GetService<IAirAppMessageBus>() is not null)));
         _pluginInfoPanel.Children.Add(CreateInfoLine(
             T("settings.info.component_placed", "组件是否已放置"),
             snapshot.HasPlacedComponent ? T("common.yes", "是") : T("common.no", "否")));
@@ -165,7 +165,7 @@ internal sealed class SamplePluginSettingsView : UserControl
             _context,
             _context.GetService<SamplePluginRuntimeStateService>() is not null,
             _context.GetService<SamplePluginClockService>() is not null,
-            _context.GetService<IPluginMessageBus>() is not null);
+            _context.GetService<IAirAppMessageBus>() is not null);
 
         _capabilityPanel.Children.Clear();
         foreach (var capability in capabilities)

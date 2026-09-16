@@ -2,21 +2,21 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
-using LanMountainDesktop.PluginSdk;
+using LanMountainDesktop.AirAppSdk;
 
 namespace LanMountainDesktop.SamplePlugin;
 
 internal sealed class SamplePluginCloseDesktopWidget : Border
 {
-    private readonly PluginLocalizer _localizer;
+    private readonly AirAppLocalizer _localizer;
     private readonly IHostApplicationLifecycle? _hostApplicationLifecycle;
-    private readonly PluginAppearanceSnapshot? _appearanceSnapshot;
+    private readonly AirAppAppearanceSnapshot? _appearanceSnapshot;
     private readonly TextBlock _titleTextBlock;
     private readonly TextBlock _statusTextBlock;
 
-    public SamplePluginCloseDesktopWidget(PluginDesktopComponentContext context)
+    public SamplePluginCloseDesktopWidget(AirAppComponentContext context)
     {
-        _localizer = PluginLocalizer.Create(context);
+        _localizer = AirAppLocalizer.Create(context);
         _hostApplicationLifecycle = context.GetService<IHostApplicationLifecycle>();
         _appearanceSnapshot = context.GetAppearanceSnapshot();
 
@@ -101,7 +101,7 @@ internal sealed class SamplePluginCloseDesktopWidget : Border
             Width = 36,
             Height = 36,
             CornerRadius = _appearanceSnapshot.ResolveCornerRadius(
-                PluginCornerRadiusPreset.Island,
+                AirAppCornerRadiusPreset.Island,
                 new CornerRadius(999)),
             Background = new SolidColorBrush(Color.Parse("#33F87171")),
             BorderBrush = new SolidColorBrush(Color.Parse("#88FCA5A5")),
@@ -141,7 +141,7 @@ internal sealed class SamplePluginCloseDesktopWidget : Border
         var basis = Bounds.Height > 1 ? Bounds.Height : 72;
         Padding = new Thickness(Math.Clamp(basis * 0.18, 12, 18), Math.Clamp(basis * 0.14, 8, 14));
         CornerRadius = _appearanceSnapshot.ResolveCornerRadius(
-            PluginCornerRadiusPreset.Lg,
+            AirAppCornerRadiusPreset.Lg,
             new CornerRadius(Math.Clamp(basis * 0.32, 16, 24)));
 
         if (Child is not Button actionButton || actionButton.Content is not Grid contentGrid)

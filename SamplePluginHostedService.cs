@@ -1,4 +1,4 @@
-using LanMountainDesktop.PluginSdk;
+using LanMountainDesktop.AirAppSdk;
 using Microsoft.Extensions.Hosting;
 using System.Globalization;
 
@@ -6,20 +6,20 @@ namespace LanMountainDesktop.SamplePlugin;
 
 internal sealed class SamplePluginHostedService : IHostedService
 {
-    private readonly IPluginRuntimeContext _runtimeContext;
+    private readonly IAirAppRuntimeContext _runtimeContext;
     private readonly SamplePluginRuntimeStateService _stateService;
     private readonly SamplePluginClockService _clockService;
-    private readonly PluginLocalizer _localizer;
+    private readonly AirAppLocalizer _localizer;
 
     public SamplePluginHostedService(
-        IPluginRuntimeContext runtimeContext,
+        IAirAppRuntimeContext runtimeContext,
         SamplePluginRuntimeStateService stateService,
         SamplePluginClockService clockService)
     {
         _runtimeContext = runtimeContext;
         _stateService = stateService;
         _clockService = clockService;
-        _localizer = PluginLocalizer.Create(runtimeContext);
+        _localizer = AirAppLocalizer.Create(runtimeContext);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)

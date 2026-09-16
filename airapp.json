@@ -1,0 +1,25 @@
+{
+  "id": "LanMountainDesktop.SamplePlugin",
+  "name": "LanMountain Sample AirApp",
+  "description": "官方示例轻应用：演示 AirApp SDK 的组件、设置节、导出契约、后台服务与共享契约用法。",
+  "author": "LanMountainDesktop",
+  "version": "1.0.0",
+  "apiVersion": "1.0.0",
+  "entranceAssembly": "LanMountainDesktop.SamplePlugin.dll",
+  "sharedContracts": [
+    {
+      "id": "LanMountainDesktop.SharedContracts.SampleClock",
+      "version": "2.0.0",
+      "assemblyName": "LanMountainDesktop.SharedContracts.SampleClock.dll"
+    }
+  ],
+  "runtime": {
+    "mode": "in-proc"
+  },
+  "components": [
+    { "id": "LanMountainDesktop.SamplePlugin.StatusClock", "name": "示例状态时钟", "defaultWidth": 2, "defaultHeight": 2 },
+    { "id": "LanMountainDesktop.SamplePlugin.CloseDesktop", "name": "关闭桌面", "defaultWidth": 2, "defaultHeight": 1 }
+  ],
+  "windows": [],
+  "permissions": []
+}

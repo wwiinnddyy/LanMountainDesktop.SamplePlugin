@@ -73,9 +73,9 @@ function Get-ArrayValue($Object, [string]$Name) {
 function Get-PackageManifest([string]$ArchivePath) {
     $archive = [System.IO.Compression.ZipFile]::OpenRead($ArchivePath)
     try {
-        $manifestEntry = $archive.Entries | Where-Object { $_.FullName -eq "plugin.json" } | Select-Object -First 1
+        $manifestEntry = $archive.Entries | Where-Object { $_.FullName -eq "airapp.json" } | Select-Object -First 1
         if ($null -eq $manifestEntry) {
-            throw "Plugin package '$ArchivePath' does not contain 'plugin.json'."
+            throw "Plugin package '$ArchivePath' does not contain 'airapp.json'."
         }
 
         $stream = $null

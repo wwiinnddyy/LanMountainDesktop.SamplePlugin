@@ -1,18 +1,18 @@
 using Avalonia;
-using LanMountainDesktop.PluginSdk;
+using LanMountainDesktop.AirAppSdk;
 
 namespace LanMountainDesktop.SamplePlugin;
 
 internal static class SamplePluginAppearance
 {
-    public static PluginAppearanceSnapshot? GetAppearanceSnapshot(this PluginDesktopComponentContext context)
+    public static AirAppAppearanceSnapshot? GetAppearanceSnapshot(this AirAppComponentContext context)
     {
-        return context.GetService<IPluginAppearanceContext>()?.Snapshot;
+        return context.GetService<IAirAppAppearanceContext>()?.Snapshot;
     }
 
     public static CornerRadius ResolveCornerRadius(
-        this PluginAppearanceSnapshot? snapshot,
-        PluginCornerRadiusPreset preset,
+        this AirAppAppearanceSnapshot? snapshot,
+        AirAppCornerRadiusPreset preset,
         CornerRadius fallback)
     {
         return snapshot?.CornerRadiusTokens is { } tokens

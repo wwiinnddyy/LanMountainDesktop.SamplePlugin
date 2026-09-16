@@ -1,12 +1,12 @@
-using LanMountainDesktop.PluginSdk;
+using LanMountainDesktop.AirAppSdk;
 using LanMountainDesktop.SharedContracts.SampleClock;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace LanMountainDesktop.SamplePlugin;
 
-[PluginEntrance]
-public sealed class SamplePlugin : PluginBase
+[AirAppEntrance]
+public sealed class SamplePlugin : AirAppBase
 {
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
@@ -17,34 +17,34 @@ public sealed class SamplePlugin : PluginBase
 
         services.AddSingleton(provider =>
         {
-            var runtimeContext = provider.GetRequiredService<IPluginRuntimeContext>();
+            var runtimeContext = provider.GetRequiredService<IAirAppRuntimeContext>();
             Directory.CreateDirectory(runtimeContext.DataDirectory);
 
             return new SamplePluginRuntimeStateService(
                 runtimeContext.Manifest,
-                runtimeContext.PluginDirectory,
+                runtimeContext.AirAppDirectory,
                 runtimeContext.DataDirectory,
-                GetHostProperty(runtimeContext, PluginHostPropertyKeys.HostApplicationName, "UnknownHost"),
-                GetHostProperty(runtimeContext, PluginHostPropertyKeys.HostVersion, "UnknownVersion"),
-                GetHostProperty(runtimeContext, PluginHostPropertyKeys.PluginSdkApiVersion, "UnknownApiVersion"),
-                provider.GetRequiredService<IPluginMessageBus>(),
-                PluginLocalizer.Create(runtimeContext));
+                GetHostProperty(runtimeContext, AirAppHostPropertyKeys.HostApplicationName, "UnknownHost"),
+                GetHostProperty(runtimeContext, AirAppHostPropertyKeys.HostVersion, "UnknownVersion"),
+                GetHostProperty(runtimeContext, AirAppHostPropertyKeys.AirAppSdkApiVersion, "UnknownApiVersion"),
+                provider.GetRequiredService<IAirAppMessageBus>(),
+                AirAppLocalizer.Create(runtimeContext));
         });
 
         services.AddSingleton(provider =>
         {
-            var runtimeContext = provider.GetRequiredService<IPluginRuntimeContext>();
+            var runtimeContext = provider.GetRequiredService<IAirAppRuntimeContext>();
             return new SamplePluginClockService(
                 runtimeContext.DataDirectory,
                 provider.GetRequiredService<SamplePluginRuntimeStateService>(),
-                provider.GetRequiredService<IPluginMessageBus>(),
-                PluginLocalizer.Create(runtimeContext));
+                provider.GetRequiredService<IAirAppMessageBus>(),
+                AirAppLocalizer.Create(runtimeContext));
         });
 
         services.AddSingleton<IHostedService, SamplePluginHostedService>();
-        services.AddPluginExport<ISampleClockExport, SamplePluginClockExport>();
+        services.AddAirAppExport<ISampleClockExport, SamplePluginClockExport>();
 
-        services.AddPluginSettingsSection(
+        services.AddAirAppSettingsSection(
             id: "status",
             titleLocalizationKey: "settings.page_title",
             configure: builder =>
@@ -61,38 +61,38 @@ public sealed class SamplePlugin : PluginBase
             iconKey: "PuzzlePiece",
             sortOrder: 0);
 
-        services.AddPluginDesktopComponent<SamplePluginStatusClockWidget>(
+        services.AddAirAppComponent<SamplePluginStatusClockWidget>(
             CreateStatusClockComponentOptions(localizer));
 
-        services.AddPluginDesktopComponent<SamplePluginCloseDesktopWidget>(
+        services.AddAirAppComponent<SamplePluginCloseDesktopWidget>(
             CreateCloseDesktopComponentOptions(localizer));
     }
 
-    private static PluginLocalizer CreateLocalizer(HostBuilderContext context)
+    private static AirAppLocalizer CreateLocalizer(HostBuilderContext context)
     {
-        var pluginDirectory = context.Properties.TryGetValue("LanMountainDesktop.PluginDirectory", out var directoryValue) &&
-                              directoryValue is string resolvedPluginDirectory &&
-                              !string.IsNullOrWhiteSpace(resolvedPluginDirectory)
-            ? resolvedPluginDirectory
+        var pluginDirectory = context.Properties.TryGetValue("LanMountainDesktop.AirAppDirectory", out var directoryValue) &&
+                              directoryValue is string resolvedAirAppDirectory &&
+                              !string.IsNullOrWhiteSpace(resolvedAirAppDirectory)
+            ? resolvedAirAppDirectory
             : AppContext.BaseDirectory;
 
         var properties = context.Properties
             .Where(pair => pair.Key is string)
             .ToDictionary(pair => (string)pair.Key, pair => (object?)pair.Value, StringComparer.OrdinalIgnoreCase);
 
-        return new PluginLocalizer(pluginDirectory, PluginLocalizer.ResolveLanguageCode(properties));
+        return new AirAppLocalizer(pluginDirectory, AirAppLocalizer.ResolveLanguageCode(properties));
     }
 
-    private static string GetHostProperty(IPluginRuntimeContext context, string key, string fallback)
+    private static string GetHostProperty(IAirAppRuntimeContext context, string key, string fallback)
     {
         return context.TryGetProperty<string>(key, out var value) && !string.IsNullOrWhiteSpace(value)
             ? value
             : fallback;
     }
 
-    private static PluginDesktopComponentOptions CreateStatusClockComponentOptions(PluginLocalizer localizer)
+    private static AirAppComponentOptions CreateStatusClockComponentOptions(AirAppLocalizer localizer)
     {
-        return new PluginDesktopComponentOptions
+        return new AirAppComponentOptions
         {
             ComponentId = "LanMountainDesktop.SamplePlugin.StatusClock",
             DisplayName = localizer.GetString("widget.display_name", "Sample Plugin Status Clock"),
@@ -103,14 +103,14 @@ public sealed class SamplePlugin : PluginBase
             MinHeightCells = 4,
             AllowDesktopPlacement = true,
             AllowStatusBarPlacement = false,
-            ResizeMode = PluginDesktopComponentResizeMode.Proportional,
-            CornerRadiusPreset = PluginCornerRadiusPreset.Default
+            ResizeMode = AirAppComponentResizeMode.Proportional,
+            CornerRadiusPreset = AirAppCornerRadiusPreset.Default
         };
     }
 
-    private static PluginDesktopComponentOptions CreateCloseDesktopComponentOptions(PluginLocalizer localizer)
+    private static AirAppComponentOptions CreateCloseDesktopComponentOptions(AirAppLocalizer localizer)
     {
-        return new PluginDesktopComponentOptions
+        return new AirAppComponentOptions
         {
             ComponentId = "LanMountainDesktop.SamplePlugin.CloseDesktop",
             DisplayName = localizer.GetString("widget.close_desktop.display_name", "Close Desktop"),
@@ -121,8 +121,8 @@ public sealed class SamplePlugin : PluginBase
             MinHeightCells = 1,
             AllowDesktopPlacement = true,
             AllowStatusBarPlacement = false,
-            ResizeMode = PluginDesktopComponentResizeMode.Free,
-            CornerRadiusPreset = PluginCornerRadiusPreset.Default
+            ResizeMode = AirAppComponentResizeMode.Free,
+            CornerRadiusPreset = AirAppCornerRadiusPreset.Default
         };
     }
 }

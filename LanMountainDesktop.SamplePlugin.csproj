@@ -4,24 +4,23 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.4.0</Version>
+    <Version>1.0.0</Version>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <OutputPath>bin\$(Configuration)\$(TargetFramework)\content\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <LanMountainPluginBuildOutputDirectory>$(OutputPath)</LanMountainPluginBuildOutputDirectory>
-    <LanMountainPluginPackageVersion>$(Version)</LanMountainPluginPackageVersion>
-    <LanMountainPluginPackageOutputDirectory>$(MSBuildThisFileDirectory)</LanMountainPluginPackageOutputDirectory>
-    <LanMountainPluginPackageFileName>$(AssemblyName).$(LanMountainPluginPackageVersion)$(LanMountainPluginPackageExtension)</LanMountainPluginPackageFileName>
-    <LanMountainPluginPackagePath>$(LanMountainPluginPackageOutputDirectory)$(LanMountainPluginPackageFileName)</LanMountainPluginPackagePath>
-    <RestorePackagesPath>$(MSBuildProjectDirectory)\.nuget\packages</RestorePackagesPath>
+    <LanMountainAirAppBuildOutputDirectory>$(OutputPath)</LanMountainAirAppBuildOutputDirectory>
+    <LanMountainAirAppPackageVersion>$(Version)</LanMountainAirAppPackageVersion>
+    <LanMountainAirAppPackageOutputDirectory>$(MSBuildThisFileDirectory)</LanMountainAirAppPackageOutputDirectory>
+    <LanMountainAirAppPackageFileName>$(AssemblyName).$(LanMountainAirAppPackageVersion)$(LanMountainAirAppPackageExtension)</LanMountainAirAppPackageFileName>
+    <LanMountainAirAppPackagePath>$(LanMountainAirAppPackageOutputDirectory)$(LanMountainAirAppPackageFileName)</LanMountainAirAppPackagePath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LanMountainDesktop.PluginSdk" Version="5.0.0" ExcludeAssets="runtime;native" PrivateAssets="all" />
+    <PackageReference Include="LanMountainDesktop.AirAppSdk" Version="1.0.0" ExcludeAssets="runtime;native" PrivateAssets="all" />
     <PackageReference Include="LanMountainDesktop.SharedContracts.SampleClock" Version="2.0.0" ExcludeAssets="runtime" PrivateAssets="all" />
-    <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+    
     <None Include="Localization\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

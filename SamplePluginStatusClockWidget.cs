@@ -3,18 +3,18 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
-using LanMountainDesktop.PluginSdk;
+using LanMountainDesktop.AirAppSdk;
 
 namespace LanMountainDesktop.SamplePlugin;
 
 internal sealed class SamplePluginStatusClockWidget : Border
 {
-    private readonly PluginDesktopComponentContext _context;
-    private readonly PluginLocalizer _localizer;
+    private readonly AirAppComponentContext _context;
+    private readonly AirAppLocalizer _localizer;
     private readonly SamplePluginRuntimeStateService _stateService;
     private readonly SamplePluginClockService _clockService;
-    private readonly IPluginMessageBus _messageBus;
-    private readonly PluginAppearanceSnapshot? _appearanceSnapshot;
+    private readonly IAirAppMessageBus _messageBus;
+    private readonly AirAppAppearanceSnapshot? _appearanceSnapshot;
     private readonly TextBlock _timeTextBlock;
     private readonly TextBlock _subtitleTextBlock;
     private readonly StackPanel _statusPanel;
@@ -22,16 +22,16 @@ internal sealed class SamplePluginStatusClockWidget : Border
     private readonly List<IDisposable> _subscriptions = [];
     private string? _instanceId;
 
-    public SamplePluginStatusClockWidget(PluginDesktopComponentContext context)
+    public SamplePluginStatusClockWidget(AirAppComponentContext context)
     {
         _context = context;
-        _localizer = PluginLocalizer.Create(context);
+        _localizer = AirAppLocalizer.Create(context);
         _stateService = context.GetService<SamplePluginRuntimeStateService>()
             ?? throw new InvalidOperationException("SamplePluginRuntimeStateService is not available.");
         _clockService = context.GetService<SamplePluginClockService>()
             ?? throw new InvalidOperationException("SamplePluginClockService is not available.");
-        _messageBus = context.GetService<IPluginMessageBus>()
-            ?? throw new InvalidOperationException("IPluginMessageBus is not available.");
+        _messageBus = context.GetService<IAirAppMessageBus>()
+            ?? throw new InvalidOperationException("IAirAppMessageBus is not available.");
         _appearanceSnapshot = context.GetAppearanceSnapshot();
 
         _timeTextBlock = new TextBlock
@@ -198,7 +198,7 @@ internal sealed class SamplePluginStatusClockWidget : Border
                 BorderBrush = new SolidColorBrush(palette.Border),
                 BorderThickness = new Thickness(1),
                 CornerRadius = _appearanceSnapshot.ResolveCornerRadius(
-                    PluginCornerRadiusPreset.Md,
+                    AirAppCornerRadiusPreset.Md,
                     new CornerRadius(12)),
                 Padding = new Thickness(10, 8),
                 Child = new Grid
@@ -213,7 +213,7 @@ internal sealed class SamplePluginStatusClockWidget : Border
                             Width = Math.Clamp(basis * 0.038, 8, 11),
                             Height = Math.Clamp(basis * 0.038, 8, 11),
                             CornerRadius = _appearanceSnapshot.ResolveCornerRadius(
-                                PluginCornerRadiusPreset.Island,
+                                AirAppCornerRadiusPreset.Island,
                                 new CornerRadius(999)),
                             Background = new SolidColorBrush(palette.Dot),
                             VerticalAlignment = VerticalAlignment.Center
@@ -259,13 +259,13 @@ internal sealed class SamplePluginStatusClockWidget : Border
         var basis = GetLayoutBasis();
         Padding = new Thickness(Math.Clamp(basis * 0.09, 16, 26));
         CornerRadius = _appearanceSnapshot.ResolveCornerRadius(
-            PluginCornerRadiusPreset.Island,
+            AirAppCornerRadiusPreset.Island,
             new CornerRadius(Math.Clamp(basis * 0.14, 20, 34)));
         _timeTextBlock.FontSize = Math.Clamp(basis * 0.22, 30, 58);
         _subtitleTextBlock.FontSize = Math.Clamp(basis * 0.062, 11, 17);
         _statusHost.Padding = new Thickness(Math.Clamp(basis * 0.045, 10, 18));
         _statusHost.CornerRadius = _appearanceSnapshot.ResolveCornerRadius(
-            PluginCornerRadiusPreset.Lg,
+            AirAppCornerRadiusPreset.Lg,
             new CornerRadius(Math.Clamp(basis * 0.09, 14, 22)));
         _statusPanel.Spacing = Math.Clamp(basis * 0.024, 6, 10);
     }

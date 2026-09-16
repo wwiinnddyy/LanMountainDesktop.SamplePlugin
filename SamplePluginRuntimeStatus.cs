@@ -2,7 +2,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using LanMountainDesktop.PluginSdk;
+using LanMountainDesktop.AirAppSdk;
 
 namespace LanMountainDesktop.SamplePlugin;
 
@@ -26,8 +26,8 @@ internal sealed record SamplePluginCapabilityItem(
     string Detail);
 
 internal sealed record SamplePluginRuntimeSnapshot(
-    PluginManifest Manifest,
-    string PluginDirectory,
+    AirAppManifest Manifest,
+    string AirAppDirectory,
     string DataDirectory,
     string HostApplicationName,
     string HostVersion,
@@ -56,17 +56,17 @@ internal sealed record SamplePluginComponentInstance(
 internal sealed class SamplePluginRuntimeStateService
 {
     private readonly object _gate = new();
-    private readonly IPluginMessageBus _messageBus;
+    private readonly IAirAppMessageBus _messageBus;
     private readonly Dictionary<string, SamplePluginComponentInstance> _componentInstances =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly PluginManifest _manifest;
+    private readonly AirAppManifest _manifest;
     private readonly string _pluginDirectory;
     private readonly string _dataDirectory;
     private readonly string _hostApplicationName;
     private readonly string _hostVersion;
     private readonly string _sdkApiVersion;
-    private readonly PluginLocalizer _localizer;
+    private readonly AirAppLocalizer _localizer;
 
     private SamplePluginStatusEntry _frontend;
     private SamplePluginStatusEntry _component;
@@ -77,14 +77,14 @@ internal sealed class SamplePluginRuntimeStateService
     private DateTimeOffset? _serviceClockTime;
 
     public SamplePluginRuntimeStateService(
-        PluginManifest manifest,
+        AirAppManifest manifest,
         string pluginDirectory,
         string dataDirectory,
         string hostApplicationName,
         string hostVersion,
         string sdkApiVersion,
-        IPluginMessageBus messageBus,
-        PluginLocalizer localizer)
+        IAirAppMessageBus messageBus,
+        AirAppLocalizer localizer)
     {
         _manifest = manifest;
         _pluginDirectory = pluginDirectory;
@@ -289,7 +289,7 @@ internal sealed class SamplePluginRuntimeStateService
     }
 
     public IReadOnlyList<SamplePluginCapabilityItem> GetCapabilities(
-        IPluginRuntimeContext context,
+        IAirAppRuntimeContext context,
         bool hasStateService,
         bool hasClockService,
         bool hasMessageBus)
@@ -303,27 +303,27 @@ internal sealed class SamplePluginRuntimeStateService
         return
         [
             new SamplePluginCapabilityItem(
-                T("capability.manifest.title", "IPluginRuntimeContext.Manifest"),
+                T("capability.manifest.title", "IAirAppRuntimeContext.Manifest"),
                 Tf(
                     "capability.manifest.detail",
                     "可读取。当前插件 id：{0}；版本：{1}。",
                     context.Manifest.Id,
                     context.Manifest.Version ?? T("common.dev", "开发版"))),
             new SamplePluginCapabilityItem(
-                T("capability.directories.title", "IPluginRuntimeContext.PluginDirectory / DataDirectory"),
+                T("capability.directories.title", "IAirAppRuntimeContext.AirAppDirectory / DataDirectory"),
                 Tf(
                     "capability.directories.detail",
                     "可读取。插件目录：{0}；数据目录：{1}。",
-                    context.PluginDirectory,
+                    context.AirAppDirectory,
                     context.DataDirectory)),
             new SamplePluginCapabilityItem(
-                T("capability.properties.title", "IPluginRuntimeContext.Properties"),
+                T("capability.properties.title", "IAirAppRuntimeContext.Properties"),
                 Tf(
                     "capability.properties.detail",
                     "可读取。宿主当前暴露的属性：{0}。",
                     propertyNames)),
             new SamplePluginCapabilityItem(
-                T("capability.get_service.title", "IPluginRuntimeContext.GetService<T>()"),
+                T("capability.get_service.title", "IAirAppRuntimeContext.GetService<T>()"),
                 Tf(
                     "capability.get_service.detail",
                     "可调用。状态服务已解析：{0}；时钟服务已解析：{1}；消息总线已解析：{2}。",
@@ -339,9 +339,9 @@ internal sealed class SamplePluginRuntimeStateService
                 T("capability.message_bus.title", "插件通信总线"),
                 T(
                     "capability.message_bus.detail",
-                    "这个示例插件通过 IPluginMessageBus 向插件 UI 推送时钟心跳和状态变化通知。")),
+                    "这个示例插件通过 IAirAppMessageBus 向插件 UI 推送时钟心跳和状态变化通知。")),
             new SamplePluginCapabilityItem(
-                T("capability.widget_context.title", "PluginDesktopComponentContext"),
+                T("capability.widget_context.title", "AirAppComponentContext"),
                 T(
                     "capability.widget_context.detail",
                     "组件可以读取 ComponentId、PlacementId、CellSize，并能在同一个插件服务容器上调用 GetService<T>()。"))
@@ -441,8 +441,8 @@ internal sealed class SamplePluginClockService : IDisposable
     private readonly object _gate = new();
     private readonly string _clockStateFilePath;
     private readonly SamplePluginRuntimeStateService _stateService;
-    private readonly IPluginMessageBus _messageBus;
-    private readonly PluginLocalizer _localizer;
+    private readonly IAirAppMessageBus _messageBus;
+    private readonly AirAppLocalizer _localizer;
     private readonly Timer _timer;
     private DateTimeOffset _currentTime = DateTimeOffset.Now;
     private int _disposed;
@@ -450,8 +450,8 @@ internal sealed class SamplePluginClockService : IDisposable
     public SamplePluginClockService(
         string dataDirectory,
         SamplePluginRuntimeStateService stateService,
-        IPluginMessageBus messageBus,
-        PluginLocalizer localizer)
+        IAirAppMessageBus messageBus,
+        AirAppLocalizer localizer)
     {
         _clockStateFilePath = Path.Combine(dataDirectory, "clock-service.txt");
         _stateService = stateService;
