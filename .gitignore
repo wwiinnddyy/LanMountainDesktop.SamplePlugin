@@ -14,8 +14,8 @@
 !.vscode/extensions.json
 
 # .NET and Avalonia build outputs
-/bin/
-/obj/
+**/bin/
+**/obj/
 *.binlog
 .nuget/
 
