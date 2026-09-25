@@ -36,6 +36,22 @@ jobs:
           echo "actor:          $(curl -s -o /dev/null -w '%{http_code}' -u "$ACTOR:$TOK" -L "$url")"
           echo "anonymous:      $(curl -s -o /dev/null -w '%{http_code}' -L "$url")"
 
+      # 反证先跑：假 token + 全新包目录 + --no-cache，必须红。
+      # （第二版探针把它放在绿的那次之后，结果 281ms 就 "Restored" 了——NuGet 的 http-cache
+      #  把包从缓存里解出来，根本没碰源，于是红不起来。顺序与缓存隔离两个都得占。）
+      - name: Negative control - bogus token must fail
+        shell: bash
+        env:
+          LANMOUNTAIN_PACKAGES_USER: ${{ github.actor }}
+          LANMOUNTAIN_PACKAGES_TOKEN: bogus-not-a-token
+        run: |
+          if dotnet restore LanMountainDesktop.SamplePlugin.csproj --packages /tmp/pkg-bogus --no-cache; then
+            echo "::error::假 token 也能还原——GITHUB_TOKEN 那次绿不能归因给凭据"
+            exit 1
+          fi
+          ls /tmp/pkg-bogus 2>/dev/null | sed 's/^/bogus-pkgdir: /'
+          echo "bogus_restore_is_red_as_expected"
+
       - name: Restore with GITHUB_TOKEN
         shell: bash
         env:
@@ -43,20 +59,5 @@ jobs:
           LANMOUNTAIN_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "packages folder tracked in git? $(git ls-files .nuget | wc -l) files"
-          dotnet restore LanMountainDesktop.SamplePlugin.csproj
-          ls .nuget/packages/lanmountaindesktop.airappsdk | sed 's/^/cached_sdk_versions=/'
-
-      # 反证：同一份 NuGet.config、换一个假 token，必须红。
-      # 红不了就说明上面那次绿不是 GITHUB_TOKEN 起的作用（比如包其实来自本地源）。
-      - name: Negative control - bogus token must fail
-        shell: bash
-        env:
-          LANMOUNTAIN_PACKAGES_USER: ${{ github.actor }}
-          LANMOUNTAIN_PACKAGES_TOKEN: bogus-not-a-token
-        run: |
-          rm -rf .nuget/packages/lanmountaindesktop.airappsdk
-          if dotnet restore LanMountainDesktop.SamplePlugin.csproj; then
-            echo "::error::假 token 也能还原——上面那次绿不能归因给 GITHUB_TOKEN"
-            exit 1
-          fi
-          echo "bogus_restore_is_red_as_expected"
+          dotnet restore LanMountainDesktop.SamplePlugin.csproj --packages /tmp/pkg-token --no-cache
+          ls /tmp/pkg-token/lanmountaindesktop.airappsdk | sed 's/^/cached_sdk_versions=/'
