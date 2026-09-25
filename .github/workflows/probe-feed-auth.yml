@@ -49,7 +49,7 @@ jobs:
             echo "::error::假 token 也能还原——GITHUB_TOKEN 那次绿不能归因给凭据"
             exit 1
           fi
-          ls /tmp/pkg-bogus 2>/dev/null | sed 's/^/bogus-pkgdir: /'
+          ls /tmp/pkg-bogus 2>/dev/null | sed 's/^/bogus-pkgdir: /' || true
           echo "bogus_restore_is_red_as_expected"
 
       - name: Restore with GITHUB_TOKEN
