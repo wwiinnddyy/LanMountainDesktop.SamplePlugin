@@ -10,12 +10,14 @@ on:
 
 env:
   DOTNET_VERSION: "10.0.x"
-  # NuGet.config 里的 lanmountain 源用这两个环境变量取凭据（源地址与凭据槽只在 NuGet.config 说一次）。
+  # lanmountain 源的凭据槽（NuGet.config 用 %VAR% 取用）。实测工作流自带的 GITHUB_TOKEN 就读得到公开包：
+  # 同一 job 里假 token 报 NU1301/401，换成 GITHUB_TOKEN 就还原成功——不需要再配 PAT 或仓库 secret。
   LANMOUNTAIN_PACKAGES_USER: ${{ github.actor }}
-  LANMOUNTAIN_PACKAGES_TOKEN: ${{ secrets.LANMOUNTAIN_PACKAGES_TOKEN }}
+  LANMOUNTAIN_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 permissions:
   contents: write
+  packages: read
 
 concurrency:
   group: sample-plugin-release-${{ github.event.inputs.version || github.run_id }}
@@ -122,18 +124,6 @@ jobs:
           "version=$version" >> $env:GITHUB_OUTPUT
           "release_tag=v$version" >> $env:GITHUB_OUTPUT
           "asset_name=$assetName" >> $env:GITHUB_OUTPUT
-
-      # NuGet.config 用 %LANMOUNTAIN_PACKAGES_TOKEN% 取凭据：变量没设时那一格被替换成空串，
-      # 还原层报的是 "Value cannot be null or empty string. (Parameter 'password')"，看不出真正缺什么。
-      - name: Require the packages credential
-        shell: pwsh
-        env:
-          TOKEN: ${{ secrets.LANMOUNTAIN_PACKAGES_TOKEN }}
-        run: |
-          if ([string]::IsNullOrWhiteSpace($env:TOKEN)) {
-            Write-Host "::error::仓库还没配置 LANMOUNTAIN_PACKAGES_TOKEN（一张带 read:packages 权限的 PAT）。位置：Settings → Secrets and variables → Actions → New repository secret。"
-            exit 1
-          }
 
       - name: Build plugin package
         shell: pwsh
