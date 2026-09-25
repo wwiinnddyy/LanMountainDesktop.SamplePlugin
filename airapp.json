@@ -4,7 +4,7 @@
   "description": "官方示例轻应用：演示 AirApp SDK 的组件、设置节、导出契约、后台服务与共享契约用法。",
   "author": "LanMountainDesktop",
   "version": "1.0.0",
-  "apiVersion": "1.0.0",
+  "apiVersion": "1.0.1",
   "entranceAssembly": "LanMountainDesktop.SamplePlugin.dll",
   "sharedContracts": [
     {
