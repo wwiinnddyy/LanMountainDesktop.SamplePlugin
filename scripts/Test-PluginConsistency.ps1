@@ -65,16 +65,19 @@ if (-not $csprojMatch.Success) {
     throw "Missing <Version> in '$csprojPath'."
 }
 
-if ($csprojContent -notmatch '<PackageReference\s+Include="LanMountainDesktop\.PluginSdk"\s+Version="5\.0\.0"') {
-    throw "Sample plugin must reference LanMountainDesktop.PluginSdk 5.0.0."
+if ($csprojContent -match 'LanMountainDesktop\.PluginSdk') {
+    throw "AirApps must not reference the retired LanMountainDesktop.PluginSdk."
 }
 
-if ($csprojContent -match 'LanMountainDesktop\.AirAppSdk') {
-    throw "Production Plugin SDK projects must not reference LanMountainDesktop.AirAppSdk."
-}
-
-if ($csprojContent -notmatch '<RestorePackagesPath>\$\(MSBuildProjectDirectory\)\\\.nuget\\packages</RestorePackagesPath>') {
-    throw "RestorePackagesPath must isolate packages under the repository .nuget/packages directory."
+# 包目录隔离有两条合法写法：csproj 的 RestorePackagesPath，或 NuGet.config 的 globalPackagesFolder。
+# 只认前者是 PluginSdk 时代的口径；本仓迁到 AirApp SDK 时换成了后者，这条判据从此一直红着，
+# 直到六家 CI 第一次跑到这一步才暴露（此前它们都停在还原层）。
+$nugetConfigPath = Join-Path $RepositoryRoot "NuGet.config"
+$nugetConfigContent = if (Test-Path $nugetConfigPath) { [System.IO.File]::ReadAllText($nugetConfigPath) } else { "" }
+$isolatedInCsproj = $csprojContent.Contains("<RestorePackagesPath>")
+$isolatedInNuGetConfig = $nugetConfigContent.Contains('key="globalPackagesFolder"') -and $nugetConfigContent.Contains(".nuget/packages")
+if (-not ($isolatedInCsproj -or $isolatedInNuGetConfig)) {
+    throw "Packages must stay inside the repository: set RestorePackagesPath in the csproj or globalPackagesFolder in NuGet.config."
 }
 
 $csprojVersion = Get-VersionCore $csprojMatch.Groups["version"].Value
@@ -86,8 +89,17 @@ if ($csprojVersion -ne $manifestVersion) {
     throw "Version mismatch. csproj=$csprojVersion airapp.json=$manifestVersion"
 }
 
-if ($manifestApiVersion -ne "1.0.0") {
-    throw "API version mismatch. Expected airapp.json apiVersion=1.0.0, actual=$manifestApiVersion"
+$sdkReference = [System.Text.RegularExpressions.Regex]::Match(
+    $csprojContent,
+    '<PackageReference\s+Include="LanMountainDesktop\.AirAppSdk"\s+Version="(?<v>[^"]+)"')
+if (-not $sdkReference.Success) {
+    throw "csproj must reference LanMountainDesktop.AirAppSdk."
+}
+
+# airapp.json 的 apiVersion 是"这个轻应用绑哪条 SDK 线"的唯一声明，csproj 必须引用同一条。
+# 钉字面量的写法每次抬版本线都会变成假红灯（1.0.1 那次三家 CI 全撞在这上面）。
+if ((Get-VersionCore $sdkReference.Groups["v"].Value) -ne $manifestApiVersion) {
+    throw "SDK line mismatch. csproj AirAppSdk=$($sdkReference.Groups['v'].Value) airapp.json apiVersion=$($manifest.apiVersion)"
 }
 
 if ($manifest.id -ne "LanMountainDesktop.SamplePlugin") {
