@@ -1,0 +1,49 @@
+name: Probe feed auth
+
+# 一次性探针：验证消费方工作流自带的 GITHUB_TOKEN 能否还原 GitHub Packages 上的 SDK。
+# 结论拿到后删除本文件。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: HTTP probe
+        shell: bash
+        env:
+          TOK: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          url="https://nuget.pkg.github.com/wwiinnddyy/download/LanMountainDesktop.AirAppSdk/1.0.1/LanMountainDesktop.AirAppSdk.1.0.1.nupkg"
+          echo "token_length=${#TOK}"
+          echo "x-access-token: $(curl -s -o /dev/null -w '%{http_code}\n' -u "x-access-token:$TOK" -L "$url")"
+          echo "github-actions: $(curl -s -o /dev/null -w '%{http_code}\n' -u "github-actions:$TOK" -L "$url")"
+          echo "actor:          $(curl -s -o /dev/null -w '%{http_code}\n' -u "$ACTOR:$TOK" -L "$url")"
+
+      - name: Restore with GITHUB_TOKEN
+        shell: bash
+        env:
+          LANMOUNTAIN_PACKAGES_USER: ${{ github.actor }}
+          LANMOUNTAIN_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          out="$(dotnet restore LanMountainDesktop.SamplePlugin.csproj 2>&1)"
+          rc=$?
+          echo "$out" | tail -25
+          echo "restore_exit=$rc"
+          echo "$out" | grep -c "LanMountainDesktop.AirAppSdk/1.0.1" | sed 's/^/sdk_lines=/'
